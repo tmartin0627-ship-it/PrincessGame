@@ -67,8 +67,7 @@
   /* ─── Menu Screen ─────────────────────────────────────── */
   .menu-title {
     font-size: clamp(1.6rem, 5vw, 2.6rem);
-    color: var(--pink-dark);
-    text-shadow: 2px 2px 4px rgba(173,20,87,0.12);
+    font-weight: 800;
     margin-bottom: 4px;
     text-align: center;
   }
@@ -311,15 +310,6 @@
     border: 2px dashed rgba(255,255,255,0.35);
     border-radius: 9px;
   }
-  .card-back-icon {
-    font-size: clamp(1.5rem, 5vw, 2.2rem);
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
-    animation: sparkleFloat 2.5s ease-in-out infinite;
-  }
-  @keyframes sparkleFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-5px) scale(1.1); }
-  }
   .card-front {
     background: white;
     border: 3px solid #f8bbd0;
@@ -533,6 +523,90 @@
   .close-btn:hover { background: #f3e5f5; }
   .close-btn:active { transform: scale(0.95); }
 
+  /* ─── Floating Background ─────────────────────────── */
+  .bg-particles {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none; overflow: hidden;
+  }
+  .bg-particle {
+    position: absolute;
+    opacity: 0;
+    animation: particleFloat linear infinite;
+  }
+  @keyframes particleFloat {
+    0% { transform: translateY(110vh) translateX(0) rotate(0deg); opacity: 0; }
+    5% { opacity: var(--p-opacity, 0.18); }
+    90% { opacity: var(--p-opacity, 0.18); }
+    100% { transform: translateY(-10vh) translateX(var(--p-sway, 30px)) rotate(var(--p-rot, 360deg)); opacity: 0; }
+  }
+  .screen { position: relative; z-index: 1; }
+
+  /* ─── Shimmer Title ──────────────────────────────── */
+  .menu-title {
+    background: linear-gradient(90deg, #ad1457, #9c27b0, #e91e90, #ff6f61, #ffd54f, #e91e90, #9c27b0, #ad1457);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: titleShimmer 6s ease-in-out infinite;
+  }
+  @keyframes titleShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* ─── Card Back Pattern ──────────────────────────── */
+  .card-back-pattern {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-back-pattern svg { width: 70%; height: 70%; opacity: 0.35; }
+  .card-back-shimmer {
+    position: absolute; inset: 0; border-radius: 11px;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: cardShimmer 3s ease-in-out infinite;
+  }
+  @keyframes cardShimmer {
+    0%, 100% { background-position: 200% 0; }
+    50% { background-position: -200% 0; }
+  }
+
+  /* ─── SVG Stars ──────────────────────────────────── */
+  .svg-star { display: inline-block; vertical-align: middle; }
+  .svg-star svg { width: 1em; height: 1em; vertical-align: -0.1em; }
+  .star-rating .svg-star svg { width: 1em; height: 1em; }
+
+  /* ─── Match Burst ────────────────────────────────── */
+  .match-particle {
+    position: absolute; pointer-events: none; z-index: 10;
+    animation: burstOut 0.65s ease-out forwards;
+  }
+  @keyframes burstOut {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--bx), var(--by)) scale(0); opacity: 0; }
+  }
+  .card.matched .card-front {
+    box-shadow: 0 0 16px 4px rgba(255,213,79,0.5);
+    transition: box-shadow 0.4s ease;
+  }
+
+  /* ─── Shooting Stars (win) ───────────────────────── */
+  .shooting-star {
+    position: fixed; z-index: 302; pointer-events: none;
+    width: 4px; height: 4px; background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 6px 2px var(--gold), -20px 0 12px var(--gold), -40px 0 8px rgba(255,213,79,0.5);
+    animation: shootStar 1.2s ease-in forwards;
+  }
+  @keyframes shootStar {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--sx, 400px), var(--sy, -300px)) scale(0.3); opacity: 0; }
+  }
+
+  /* ─── SVG Icon Buttons ───────────────────────────── */
+  .back-btn svg, .gear-btn svg, .hint-btn svg { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }
+
   /* ─── Mobile Responsive ────────────────────────────── */
   @media (max-width: 500px) {
     .difficulty {
@@ -567,6 +641,9 @@
 </head>
 <body>
 
+<!-- ═══ FLOATING BACKGROUND ═══ -->
+<div class="bg-particles" id="bgParticles"></div>
+
 <!-- ═══ MENU SCREEN ═══ -->
 <div id="menuScreen" class="screen visible">
   <h1 class="menu-title">Princess & Unicorn Memory</h1>
@@ -574,30 +651,30 @@
   <div class="total-stars-bar" id="totalStars"></div>
   <div class="level-cards">
     <div class="level-card" onclick="selectLevel(1)">
-      <div class="level-card-icon">👸</div>
+      <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><polygon points="28,28 32,12 36,22 40,6 44,22 48,12 52,28" fill="#ffd54f" stroke="#f9a825" stroke-width="1.2"/><circle cx="40" cy="38" r="14" fill="#ffe0b2"/><circle cx="35" cy="36" r="2" fill="#5d4037"/><circle cx="45" cy="36" r="2" fill="#5d4037"/><path d="M37,42 Q40,46 43,42" stroke="#e91e63" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M24,30 Q22,40 26,48" stroke="#f48fb1" fill="none" stroke-width="3" stroke-linecap="round"/><path d="M56,30 Q58,40 54,48" stroke="#f48fb1" fill="none" stroke-width="3" stroke-linecap="round"/><path d="M28,50 L24,74 40,66 56,74 52,50" fill="#ec407a"/><rect x="34" y="50" width="12" height="6" rx="2" fill="#ffd54f"/></svg></div>
       <div class="level-card-title">Pictures</div>
       <div class="level-card-stars" id="menu-stars-1"></div>
     </div>
     <div class="level-card" onclick="selectLevel(2)">
-      <div class="level-card-icon">📝</div>
+      <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><rect x="12" y="14" width="56" height="50" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><line x1="40" y1="18" x2="40" y2="60" stroke="#e0c080" stroke-width="1.5"/><line x1="20" y1="26" x2="36" y2="26" stroke="#ce93d8" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="33" x2="34" y2="33" stroke="#f48fb1" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="40" x2="36" y2="40" stroke="#ce93d8" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="47" x2="30" y2="47" stroke="#f48fb1" stroke-width="2" stroke-linecap="round"/><path d="M52,28 L56,24 L60,28 L56,32 Z" fill="#e91e63"/><circle cx="56" cy="42" r="5" fill="none" stroke="#ffd54f" stroke-width="2"/><polygon points="56,37 57.5,39.5 60,39.5 58,41 59,43.5 56,42 53,43.5 54,41 52,39.5 54.5,39.5" fill="#ffd54f"/></svg></div>
       <div class="level-card-title">Words</div>
       <div class="level-card-stars" id="menu-stars-2"></div>
     </div>
     <div class="level-card" onclick="selectLevel(3)">
-      <div class="level-card-icon">🔢</div>
+      <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><rect x="10" y="40" width="22" height="26" rx="4" fill="#f48fb1" stroke="#e91e63" stroke-width="1.5"/><rect x="29" y="28" width="22" height="38" rx="4" fill="#ce93d8" stroke="#9c27b0" stroke-width="1.5"/><rect x="48" y="16" width="22" height="50" rx="4" fill="#90caf9" stroke="#42a5f5" stroke-width="1.5"/><text x="21" y="58" text-anchor="middle" fill="white" font-weight="bold" font-size="14">1</text><text x="40" y="52" text-anchor="middle" fill="white" font-weight="bold" font-size="14">2</text><text x="59" y="46" text-anchor="middle" fill="white" font-weight="bold" font-size="14">3</text><polygon points="40,6 42,11 47,11 43,14 44.5,19 40,16 35.5,19 37,14 33,11 38,11" fill="#ffd54f"/></svg></div>
       <div class="level-card-title">Numbers</div>
       <div class="level-card-stars" id="menu-stars-3"></div>
     </div>
   </div>
-  <button class="menu-settings-btn" onclick="openSettings()">⚙️ Settings</button>
+  <button class="menu-settings-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16" style="vertical-align:-2px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Settings</button>
 </div>
 
 <!-- ═══ GAME SCREEN ═══ -->
 <div id="gameScreen" class="screen hidden">
   <div class="game-header">
-    <button class="back-btn" onclick="showMenu()">←</button>
+    <button class="back-btn" onclick="showMenu()"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M13,4 L7,10 L13,16" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <h2 class="game-title" id="gameTitle">Pictures</h2>
-    <button class="gear-btn" onclick="openSettings()">⚙️</button>
+    <button class="gear-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
   </div>
   <div class="difficulty" id="difficultyBar">
     <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">Easy <span class="diff-stars" id="diff-stars-easy"></span></button>
@@ -606,14 +683,14 @@
   </div>
   <div class="game-hud">
     <div class="move-counter" id="moveCounter">Moves: 0</div>
-    <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 Hint (3)</button>
+    <button class="hint-btn" id="hintBtn" onclick="useHint()"><svg viewBox="0 0 20 20" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><path d="M10,2 C6.5,2 4,4.8 4,8 C4,10.5 5.5,12 7,13 L7,15 L13,15 L13,13 C14.5,12 16,10.5 16,8 C16,4.8 13.5,2 10,2Z" fill="#ffd54f" stroke="#f9a825" stroke-width="1"/><rect x="7" y="15.5" width="6" height="2" rx="1" fill="#f9a825"/><line x1="10" y1="6" x2="10" y2="10" stroke="#f57f17" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="5" r="1" fill="#f57f17"/></svg> Hint (3)</button>
   </div>
   <div class="grid cols-3" id="grid"></div>
 </div>
 
 <!-- ═══ WIN OVERLAY ═══ -->
 <div class="win-overlay" id="winOverlay">
-  <div class="win-emoji">🎉</div>
+  <div class="win-emoji"><svg viewBox="0 0 100 100" width="80" height="80"><defs><linearGradient id="crownG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><polygon points="30,55 35,25 42,42 50,18 58,42 65,25 70,55" fill="url(#crownG)" stroke="#e65100" stroke-width="1.5"/><rect x="30" y="55" width="40" height="8" rx="3" fill="url(#crownG)" stroke="#e65100" stroke-width="1"/><circle cx="50" cy="22" r="4" fill="#e91e63"/><circle cx="38" cy="30" r="3" fill="#7c4dff"/><circle cx="62" cy="30" r="3" fill="#00bcd4"/><polygon points="50,70 52,76 58,76 53,80 55,86 50,82 45,86 47,80 42,76 48,76" fill="#ffd54f"><animateTransform attributeName="transform" type="rotate" values="0 50 78;15 50 78;-15 50 78;0 50 78" dur="2s" repeatCount="indefinite"/></polygon><circle cx="25" cy="30" r="2.5" fill="#e91e63" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="75" cy="35" r="2" fill="#ffd54f" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite"/></circle><circle cx="20" cy="50" r="1.5" fill="#ce93d8" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.3s" repeatCount="indefinite"/></circle><circle cx="80" cy="48" r="2" fill="#42a5f5" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.6s" repeatCount="indefinite"/></circle><polygon points="22,18 23,21 26,21 23.5,23 24.5,26 22,24 19.5,26 20.5,23 18,21 21,21" fill="#ffd54f" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite"/></polygon><polygon points="78,20 79,23 82,23 79.5,25 80.5,28 78,26 75.5,28 76.5,25 74,23 77,23" fill="#f48fb1" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.7s" repeatCount="indefinite"/></polygon></svg></div>
   <div class="win-text" id="winText">You did it!</div>
   <div class="win-moves" id="winMoves"></div>
   <div class="star-rating" id="starRating"></div>
@@ -624,7 +701,7 @@
 <!-- ═══ SETTINGS ═══ -->
 <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
 <div class="settings-panel" id="settingsPanel">
-  <h3>⚙️ Settings</h3>
+  <h3><svg viewBox="0 0 20 20" width="18" height="18" style="vertical-align:-3px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="var(--pink-dark)" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="var(--pink-dark)" stroke-width="1.8" stroke-linecap="round"/></svg> Settings</h3>
   <div class="setting-row">
     <span>Sound</span>
     <label class="toggle">
@@ -966,10 +1043,16 @@ function calcStars(moves, pairs) {
   return 1;
 }
 
+function svgStar(filled, size) {
+  const sz = size || 20;
+  const fill = filled ? '#ffd54f' : '#e0e0e0';
+  const stroke = filled ? '#f9a825' : '#bdbdbd';
+  return `<span class="svg-star" style="width:${sz}px;height:${sz}px;display:inline-block"><svg viewBox="0 0 24 24" width="${sz}" height="${sz}"><defs><linearGradient id="sg${filled?1:0}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${filled?'#ffee58':fill}"/><stop offset="100%" stop-color="${fill}"/></linearGradient></defs><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" fill="url(#sg${filled?1:0})" stroke="${stroke}" stroke-width="1.2" stroke-linejoin="round"/>${filled?'<polygon points="12,5 13.5,9.5 18,9.5 14.5,12.5 16,17 12,14" fill="rgba(255,255,255,0.3)"/>':''}</svg></span>`;
+}
 function renderStars(count, size) {
-  const sz = size || '1.2rem';
+  const sz = size ? parseInt(size) || 20 : 20;
   let h = '';
-  for (let i = 0; i < 3; i++) h += `<span class="star-icon ${i < count ? 'earned' : 'empty'}" style="font-size:${sz}">★</span>`;
+  for (let i = 0; i < 3; i++) h += svgStar(i < count, sz);
   return h;
 }
 
@@ -998,7 +1081,7 @@ function updateMenuStars() {
   const total = Storage.totalStars();
   const max = Storage.maxStars();
   document.getElementById('totalStars').innerHTML = total > 0
-    ? `<span class="star-icon earned">★</span> ${total} / ${max} stars collected`
+    ? `${svgStar(true, 22)} ${total} / ${max} stars collected`
     : 'Collect stars by completing games!';
   for (let l = 1; l <= 3; l++) {
     document.getElementById(`menu-stars-${l}`).innerHTML = renderStars(Storage.bestForLevel(l));
@@ -1008,7 +1091,7 @@ function updateMenuStars() {
 function updateDifficultyStars() {
   ['easy','medium','hard'].forEach(d => {
     const s = Storage.getStars(currentLevel, d);
-    document.getElementById(`diff-stars-${d}`).innerHTML = s > 0 ? renderStars(s, '0.7rem') : '';
+    document.getElementById(`diff-stars-${d}`).innerHTML = s > 0 ? renderStars(s, 14) : '';
   });
 }
 
@@ -1045,29 +1128,58 @@ function setDifficulty(d) {
 // ═══════════════════════════════════════════════════════════════
 function createSparkles(card) {
   const colors = ['#ffd54f','#f48fb1','#ce93d8','#80deea','#c5e1a5'];
-  for (let i = 0; i < 6; i++) {
-    const s = document.createElement('div');
-    s.className = 'sparkle';
-    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:10px;height:10px;background:${colors[i%5]};border-radius:50%;`;
-    card.appendChild(s);
-    setTimeout(() => s.remove(), 700);
+  // Burst particles radiating outward
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2;
+    const dist = 40 + Math.random() * 30;
+    const bx = Math.cos(angle) * dist;
+    const by = Math.sin(angle) * dist;
+    const p = document.createElement('div');
+    p.className = 'match-particle';
+    const size = 4 + Math.random() * 6;
+    const color = colors[i % 5];
+    p.style.cssText = `left:50%;top:50%;width:${size}px;height:${size}px;background:${color};border-radius:50%;--bx:${bx}px;--by:${by}px;animation-delay:${Math.random()*0.1}s;margin-left:-${size/2}px;margin-top:-${size/2}px;`;
+    card.appendChild(p);
+    setTimeout(() => p.remove(), 700);
   }
-  const ring = document.createElement('div');
-  ring.className = 'match-ring';
-  card.appendChild(ring);
-  setTimeout(() => ring.remove(), 600);
+  // Double ring pulse
+  for (let r = 0; r < 2; r++) {
+    const ring = document.createElement('div');
+    ring.className = 'match-ring';
+    ring.style.animationDelay = `${r * 0.15}s`;
+    card.appendChild(ring);
+    setTimeout(() => ring.remove(), 800);
+  }
 }
 
 function launchConfetti() {
   const colors = ['#e91e63','#9c27b0','#ffd54f','#4caf50','#42a5f5','#ff9800','#f48fb1','#ce93d8'];
-  const shapes = ['★','♥','●','♦'];
-  for (let i = 0; i < 50; i++) {
+  const svgShapes = [
+    (c) => `<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" fill="${c}"/></svg>`,
+    (c) => `<svg width="14" height="14" viewBox="0 0 24 24"><path d="M12,4 C12,4 4,10 4,15 C4,19 8,22 12,22 C16,22 20,19 20,15 C20,10 12,4 12,4Z" fill="${c}" transform="rotate(180 12 13)"/></svg>`,
+    (c) => `<svg width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${c}"/></svg>`,
+    (c) => `<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12,3 15,10 22,10 17,15 19,22 12,18 5,22 7,15 2,10 9,10" fill="${c}"/></svg>`,
+  ];
+  for (let i = 0; i < 80; i++) {
     const p = document.createElement('div');
     p.className = 'confetti-piece';
-    p.textContent = shapes[Math.floor(Math.random()*4)];
-    p.style.cssText = `left:${Math.random()*100}vw;color:${colors[Math.floor(Math.random()*8)]};font-size:${12+Math.random()*16}px;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.2}s;`;
+    const c = colors[Math.floor(Math.random() * 8)];
+    p.innerHTML = svgShapes[Math.floor(Math.random() * 4)](c);
+    const sz = 0.7 + Math.random() * 1.3;
+    p.style.cssText = `left:${Math.random()*100}vw;font-size:1px;transform:scale(${sz});animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s;`;
     document.body.appendChild(p);
-    setTimeout(() => p.remove(), 5000);
+    setTimeout(() => p.remove(), 6000);
+  }
+  // Shooting stars
+  for (let i = 0; i < 5; i++) {
+    const star = document.createElement('div');
+    star.className = 'shooting-star';
+    const startX = Math.random() * 60;
+    const sx = 200 + Math.random() * 300;
+    const sy = -(150 + Math.random() * 250);
+    star.style.cssText = `left:${startX}%;top:${40+Math.random()*30}%;--sx:${sx}px;--sy:${sy}px;animation-delay:${0.2+i*0.3}s;`;
+    document.body.appendChild(star);
+    setTimeout(() => star.remove(), 3000);
   }
 }
 
@@ -1090,9 +1202,10 @@ function useHint() {
   }, 1500);
 }
 
+const hintSvg = '<svg viewBox="0 0 20 20" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><path d="M10,2 C6.5,2 4,4.8 4,8 C4,10.5 5.5,12 7,13 L7,15 L13,15 L13,13 C14.5,12 16,10.5 16,8 C16,4.8 13.5,2 10,2Z" fill="#ffd54f" stroke="#f9a825" stroke-width="1"/><rect x="7" y="15.5" width="6" height="2" rx="1" fill="#f9a825"/><line x1="10" y1="6" x2="10" y2="10" stroke="#f57f17" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="5" r="1" fill="#f57f17"/></svg>';
 function updateHintBtn() {
   const btn = document.getElementById('hintBtn');
-  btn.textContent = `💡 Hint (${hintsRemaining})`;
+  btn.innerHTML = `${hintSvg} Hint (${hintsRemaining})`;
   btn.disabled = hintsRemaining <= 0;
 }
 
@@ -1173,7 +1286,7 @@ function showWin(stars) {
   for (let i = 0; i < 3; i++) {
     const s = document.createElement('span');
     s.className = `star ${i < stars ? 'reveal' : 'empty-star reveal'}`;
-    s.textContent = '⭐';
+    s.innerHTML = svgStar(i < stars, 48);
     s.style.animationDelay = `${0.3 + i * 0.25}s`;
     sr.appendChild(s);
   }
@@ -1231,7 +1344,7 @@ function startGame() {
 
     const bgStyle = currentLevel !== 1 ? `style="background:${item.content.bg}"` : '';
     card.innerHTML = `
-      <div class="card-face card-back"><span class="card-back-icon">✨</span></div>
+      <div class="card-face card-back"><div class="card-back-pattern"><svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><polygon points="30,8 33,16 41,16 35,21 37,29 30,25 23,29 25,21 19,16 27,16" fill="rgba(255,255,255,0.5)"/><polygon points="30,2 32,6 36,6 33,9 34,13 30,10 26,13 27,9 24,6 28,6" fill="rgba(255,213,79,0.6)"/><polygon points="15,35 17,39 21,39 18,42 19,46 15,43 11,46 12,42 9,39 13,39" fill="rgba(255,255,255,0.3)"/><polygon points="45,35 47,39 51,39 48,42 49,46 45,43 41,46 42,42 39,39 43,39" fill="rgba(255,255,255,0.3)"/><path d="M20,60 L24,52 L27,56 L30,48 L33,56 L36,52 L40,60Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,213,79,0.4)" stroke-width="0.8"/><circle cx="15" cy="20" r="2" fill="rgba(255,255,255,0.25)"/><circle cx="45" cy="22" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="12" cy="55" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="48" cy="58" r="2" fill="rgba(255,255,255,0.2)"/><path d="M22,68 Q30,72 38,68" fill="rgba(255,213,79,0.2)" stroke="rgba(255,213,79,0.3)" stroke-width="0.8"/></svg></div><div class="card-back-shimmer"></div></div>
       <div class="card-face card-front" ${bgStyle}>${front}</div>
     `;
 
@@ -1258,6 +1371,34 @@ function startGame() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FLOATING BACKGROUND
+// ═══════════════════════════════════════════════════════════════
+function initBgParticles() {
+  const container = document.getElementById('bgParticles');
+  const shapes = [
+    (c) => `<svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M12,4 C12,4 4,10 4,15 C4,19 8,22 12,22 C16,22 20,19 20,15 C20,10 12,4 12,4Z" fill="${c}" transform="rotate(180 12 13)"/></svg>`,
+    (c) => `<svg viewBox="0 0 24 24" width="100%" height="100%"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" fill="${c}"/></svg>`,
+    (c) => `<svg viewBox="0 0 24 24" width="100%" height="100%"><polygon points="12,3 15,10 22,10 17,15 19,22 12,18 5,22 7,15 2,10 9,10" fill="${c}"/></svg>`,
+    (c) => `<svg viewBox="0 0 30 30" width="100%" height="100%"><polygon points="15,5 17,11 23,11 18,15 20,21 15,17 10,21 12,15 7,11 13,11" fill="${c}"/><circle cx="8" cy="8" r="2" fill="${c}" opacity="0.5"/><circle cx="22" cy="24" r="1.5" fill="${c}" opacity="0.5"/></svg>`,
+    (c) => `<svg viewBox="0 0 30 24" width="100%" height="100%"><polygon points="8,20 10,8 13,14 15,4 17,14 20,8 22,20" fill="${c}"/><rect x="8" y="20" width="14" height="3" rx="1" fill="${c}"/></svg>`,
+  ];
+  const colors = ['#f48fb1','#ce93d8','#ffd54f','#90caf9','#80cbc4','#ffab91','#b39ddb'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'bg-particle';
+    const size = 15 + Math.random() * 28;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const opacity = 0.12 + Math.random() * 0.14;
+    const duration = 18 + Math.random() * 18;
+    const sway = -40 + Math.random() * 80;
+    const rot = Math.random() > 0.5 ? 360 : -360;
+    p.innerHTML = shapes[Math.floor(Math.random() * shapes.length)](color);
+    p.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size}px;--p-opacity:${opacity};--p-sway:${sway}px;--p-rot:${rot}deg;animation-duration:${duration}s;animation-delay:${-Math.random()*duration}s;`;
+    container.appendChild(p);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
 function setVH() { document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px'); }
@@ -1265,6 +1406,7 @@ window.addEventListener('resize', setVH);
 setVH();
 loadSettings();
 updateMenuStars();
+initBgParticles();
 </script>
 </body>
 </html>
