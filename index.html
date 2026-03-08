@@ -1119,8 +1119,12 @@ function shuffle(arr) {
 }
 
 function calcStars(moves, pairs) {
-  if (moves <= pairs * 2) return 3;
-  if (moves <= pairs * 3) return 2;
+  // 3★ = near-perfect memory (at most 2 mistakes)
+  // 2★ = good (roughly 50% extra moves)
+  // 1★ = completed
+  const perfect = pairs;  // perfect = every flip is a match
+  if (moves <= perfect + 2) return 3;
+  if (moves <= Math.ceil(perfect * 1.5) + 2) return 2;
   return 1;
 }
 
@@ -1358,7 +1362,7 @@ function showWin(stars) {
   const winTitles1 = ['You did it!', 'Good try!', 'Nice work!'];
   const titles = stars === 3 ? winTitles3 : stars === 2 ? winTitles2 : winTitles1;
   document.getElementById('winText').textContent = titles[Math.floor(Math.random() * titles.length)];
-  const perfect = totalPairs * 2;
+  const perfect = totalPairs;
   document.getElementById('winMoves').textContent = moveCount <= perfect
     ? `Perfect! ${moveCount} moves!`
     : `Done in ${moveCount} moves!`;
