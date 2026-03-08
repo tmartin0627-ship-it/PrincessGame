@@ -818,7 +818,7 @@ function startGame() {
       <div class="card-face card-back">
         <span class="card-back-icon">&#x2728;</span>
       </div>
-      <div class="card-face card-front" ${currentLevel === 2 ? `style="background:${item.content.bg}"` : ''}>
+      <div class="card-face card-front" ${currentLevel !== 1 ? `style="background:${item.content.bg}"` : ''}>
         ${frontContent}
       </div>
     `;
