@@ -2,355 +2,668 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Princess & Unicorn Memory Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Princess Memory">
+<meta name="theme-color" content="#fce4ec">
+<title>Princess & Unicorn Memory</title>
 <style>
+  :root {
+    --pink: #e91e90;
+    --pink-dark: #ad1457;
+    --purple: #9c27b0;
+    --purple-light: #ce93d8;
+    --gold: #ffd54f;
+    --blue: #42a5f5;
+    --bg: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 25%, #e8eaf6 50%, #e0f7fa 75%, #fff9c4 100%);
+    --flip-speed: 0.5s;
+    --vh: 1vh;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
 
   body {
     min-height: 100vh;
-    background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 25%, #e8eaf6 50%, #e0f7fa 75%, #fff9c4 100%);
+    min-height: calc(var(--vh, 1vh) * 100);
+    background: var(--bg);
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
     overflow-x: hidden;
+    user-select: none;
   }
 
-  h1 {
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
-    color: #ad1457;
-    text-shadow: 2px 2px 4px rgba(173, 20, 87, 0.15);
-    margin-bottom: 10px;
+  button, .card { touch-action: manipulation; -webkit-touch-callout: none; cursor: pointer; }
+
+  /* ─── Screens ─────────────────────────────────────────── */
+  .screen {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .screen.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+  }
+  .screen.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── Menu Screen ─────────────────────────────────────── */
+  .menu-title {
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    color: var(--pink-dark);
+    text-shadow: 2px 2px 4px rgba(173,20,87,0.12);
+    margin-bottom: 4px;
     text-align: center;
   }
-
-  .subtitle {
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-    color: #7b1fa2;
+  .menu-subtitle {
+    font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+    color: var(--purple);
+    margin-bottom: 24px;
+  }
+  .total-stars-bar {
+    font-size: 1rem;
+    color: var(--purple);
+    font-weight: 600;
     margin-bottom: 20px;
   }
+  .total-stars-bar .star-icon { color: var(--gold); }
 
-  .levels {
+  .level-cards {
     display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 16px;
     flex-wrap: wrap;
     justify-content: center;
+    max-width: 700px;
+    margin-bottom: 24px;
   }
 
-  .levels button {
-    padding: 12px 28px;
-    border: 3px solid #42a5f5;
+  .level-card {
+    width: min(42vw, 200px);
+    background: white;
+    border-radius: 20px;
+    padding: 16px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 24px rgba(173,20,87,0.1);
+    border: 3px solid #f8bbd0;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .level-card:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(173,20,87,0.18); }
+  .level-card:active { transform: scale(0.96); }
+
+  .level-card-icon { font-size: clamp(2.5rem, 8vw, 3.5rem); line-height: 1; }
+  .level-card-title { font-size: clamp(0.9rem, 2.5vw, 1.1rem); font-weight: 700; color: var(--pink-dark); }
+  .level-card-stars { display: flex; gap: 2px; }
+
+  .star-icon { font-size: 1.2rem; }
+  .star-icon.earned { color: var(--gold); }
+  .star-icon.empty { color: #e0e0e0; }
+
+  .menu-settings-btn {
+    padding: 10px 24px;
+    border: 2px solid var(--purple-light);
     border-radius: 50px;
     background: white;
-    color: #1565c0;
-    font-size: 1.15rem;
-    font-weight: 700;
-    cursor: pointer;
+    color: var(--purple);
+    font-size: 0.95rem;
+    font-weight: 600;
     transition: all 0.2s;
   }
+  .menu-settings-btn:hover { background: #f3e5f5; }
+  .menu-settings-btn:active { transform: scale(0.95); }
 
-  .levels button:hover {
-    background: #e3f2fd;
-    transform: scale(1.05);
+  /* ─── Game Screen ─────────────────────────────────────── */
+  .game-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    width: 100%;
+    max-width: 650px;
+    justify-content: space-between;
   }
-
-  .levels button.active {
-    background: linear-gradient(135deg, #42a5f5, #ab47bc);
-    color: white;
-    border-color: #1976d2;
-    box-shadow: 0 4px 15px rgba(66, 165, 245, 0.4);
+  .back-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--purple-light);
+    background: white;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--purple);
+    transition: all 0.2s;
   }
+  .back-btn:hover { background: #f3e5f5; }
+  .back-btn:active { transform: scale(0.9); }
+  .game-title {
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    color: var(--pink-dark);
+    text-align: center;
+    flex: 1;
+  }
+  .gear-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--purple-light);
+    background: white;
+    font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .gear-btn:hover { background: #f3e5f5; }
+  .gear-btn:active { transform: scale(0.9); }
 
   .difficulty {
     display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
+    gap: 8px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
     justify-content: center;
   }
-
-  .difficulty button {
-    padding: 10px 24px;
-    border: 3px solid #ce93d8;
+  .diff-btn {
+    padding: 8px 20px;
+    border: 3px solid var(--purple-light);
     border-radius: 50px;
     background: white;
-    color: #7b1fa2;
-    font-size: 1.1rem;
+    color: var(--purple);
+    font-size: 0.95rem;
     font-weight: 600;
-    cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-
-  .difficulty button:hover {
-    background: #f3e5f5;
-    transform: scale(1.05);
-  }
-
-  .difficulty button.active {
-    background: linear-gradient(135deg, #ce93d8, #f48fb1);
+  .diff-btn:hover { background: #f3e5f5; transform: scale(1.04); }
+  .diff-btn:active { transform: scale(0.95); }
+  .diff-btn.active {
+    background: linear-gradient(135deg, var(--purple-light), #f48fb1);
     color: white;
     border-color: #ab47bc;
-    box-shadow: 0 4px 15px rgba(171, 71, 188, 0.4);
+    box-shadow: 0 4px 14px rgba(171,71,188,0.35);
   }
+  .diff-btn .diff-stars { display: flex; gap: 1px; }
+  .diff-btn .diff-stars .star-icon { font-size: 0.7rem; }
+  .diff-btn.active .diff-stars .star-icon.earned { color: white; }
+  .diff-btn.active .diff-stars .star-icon.empty { color: rgba(255,255,255,0.4); }
 
+  /* ─── HUD ─────────────────────────────────────────────── */
+  .game-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 650px;
+    padding: 6px 4px;
+    margin-bottom: 10px;
+  }
+  .move-counter {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--purple);
+    min-width: 90px;
+  }
+  .hint-btn {
+    padding: 6px 16px;
+    border-radius: 50px;
+    border: 2px solid var(--gold);
+    background: #fff9c4;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f57f17;
+    transition: all 0.2s;
+  }
+  .hint-btn:hover { background: var(--gold); color: white; }
+  .hint-btn:active { transform: scale(0.93); }
+  .hint-btn:not(:disabled) { animation: hintGlow 3s ease-in-out infinite; }
+  @keyframes hintGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,213,79,0); }
+    50% { box-shadow: 0 0 12px 3px rgba(255,213,79,0.35); }
+  }
+  .hint-btn:disabled { opacity: 0.35; cursor: not-allowed; background: #eee; border-color: #ccc; color: #999; animation: none; }
+
+  /* ─── Grid & Cards ────────────────────────────────────── */
   .grid {
     display: grid;
-    gap: 14px;
+    gap: 10px;
     perspective: 1000px;
     justify-content: center;
   }
-
   .grid.cols-3 {
-    grid-template-columns: repeat(3, min(28vw, 150px));
-    grid-auto-rows: min(37.33vw, 200px);
+    grid-template-columns: repeat(3, min(28vw, 140px));
+    grid-auto-rows: min(37.33vw, 187px);
   }
   .grid.cols-4 {
-    grid-template-columns: repeat(4, min(22vw, 130px));
-    grid-auto-rows: min(29.33vw, 173px);
+    grid-template-columns: repeat(4, min(21vw, 125px));
+    grid-auto-rows: min(28vw, 167px);
   }
   .grid.cols-5 {
-    grid-template-columns: repeat(5, min(18vw, 115px));
-    grid-auto-rows: min(24vw, 153px);
+    grid-template-columns: repeat(5, min(17vw, 105px));
+    grid-auto-rows: min(22.67vw, 140px);
   }
   .grid.cols-6 {
-    grid-template-columns: repeat(6, min(15vw, 100px));
-    grid-auto-rows: min(20vw, 133px);
+    grid-template-columns: repeat(6, min(14.5vw, 95px));
+    grid-auto-rows: min(19.33vw, 127px);
   }
 
   .card {
-    cursor: pointer;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.5s ease;
+    transition: transform var(--flip-speed) ease;
     width: 100%;
     height: 100%;
   }
-
+  .card.dealing {
+    opacity: 0;
+    transform: scale(0.3) rotate(-12deg) translateY(50px);
+  }
+  .card.dealt {
+    opacity: 1;
+    transform: scale(1) rotate(0deg) translateY(0);
+    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
   .card.flipped { transform: rotateY(180deg); }
-
   .card.matched {
     transform: rotateY(180deg);
     animation: matchBounce 0.5s ease;
   }
-
   @keyframes matchBounce {
-    0%, 100% { transform: rotateY(180deg) scale(1); }
-    50% { transform: rotateY(180deg) scale(1.1); }
+    0%,100% { transform: rotateY(180deg) scale(1); }
+    50% { transform: rotateY(180deg) scale(1.08); }
   }
 
   .card-face {
     position: absolute;
     inset: 0;
     backface-visibility: hidden;
-    border-radius: 16px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
   }
-
   .card-back {
-    background: linear-gradient(135deg, #e91e90, #9c27b0);
-    border: 4px solid #f8bbd0;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border: 3px solid #f8bbd0;
     overflow: hidden;
   }
-
   .card-back::before {
     content: '';
     position: absolute;
-    inset: 8px;
-    border: 3px dashed rgba(255,255,255,0.4);
-    border-radius: 10px;
+    inset: 6px;
+    border: 2px dashed rgba(255,255,255,0.35);
+    border-radius: 9px;
   }
-
   .card-back-icon {
-    font-size: clamp(2rem, 6vw, 3rem);
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
+    animation: sparkleFloat 2.5s ease-in-out infinite;
   }
-
+  @keyframes sparkleFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.1); }
+  }
   .card-front {
     background: white;
-    border: 4px solid #f8bbd0;
+    border: 3px solid #f8bbd0;
     transform: rotateY(180deg);
-    padding: 10px;
+    padding: 8px;
   }
-
-  .card-front svg {
-    width: 100%;
-    height: 100%;
-  }
-
+  .card-front svg { width: 100%; height: 100%; }
   .card-label {
     position: absolute;
-    bottom: 8px;
-    left: 0;
-    right: 0;
+    bottom: 5px;
+    left: 0; right: 0;
     text-align: center;
-    font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+    font-size: clamp(0.55rem, 1.6vw, 0.75rem);
     font-weight: 600;
-    color: #ad1457;
+    color: var(--pink-dark);
   }
-
   .word-text {
     font-weight: 800;
     letter-spacing: 2px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
   }
 
+  /* ─── Effects ─────────────────────────────────────────── */
   .sparkle {
     position: absolute;
     pointer-events: none;
     animation: sparkleAnim 0.7s ease-out forwards;
   }
-
   @keyframes sparkleAnim {
     0% { transform: scale(0) rotate(0deg); opacity: 1; }
     100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
   }
-
-  /* Win overlay */
-  .win-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(255,255,255,0.9);
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    animation: fadeIn 0.5s ease;
+  .match-ring {
+    position: absolute;
+    inset: -8px;
+    border: 3px solid var(--gold);
+    border-radius: 18px;
+    animation: ringPulse 0.6s ease-out forwards;
+    pointer-events: none;
   }
-
-  .win-overlay.show { display: flex; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  @keyframes ringPulse {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.12); opacity: 0; }
   }
-
-  .win-text {
-    font-size: clamp(2rem, 8vw, 4rem);
-    color: #ad1457;
-    margin-bottom: 10px;
-    animation: winBounce 1s ease infinite;
-  }
-
-  .win-emoji {
-    font-size: clamp(3rem, 10vw, 5rem);
-    margin-bottom: 20px;
-  }
-
-  @keyframes winBounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-  }
-
-  .play-again {
-    padding: 16px 48px;
-    border: none;
-    border-radius: 50px;
-    background: linear-gradient(135deg, #ec407a, #ab47bc);
-    color: white;
-    font-size: 1.4rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
-    transition: transform 0.2s;
-  }
-
-  .play-again:hover { transform: scale(1.08); }
-
-  /* Confetti */
   .confetti-piece {
     position: fixed;
     top: -20px;
-    z-index: 101;
+    z-index: 301;
     animation: confettiFall linear forwards;
     pointer-events: none;
   }
-
   @keyframes confettiFall {
     0% { transform: translateY(0) rotate(0deg); opacity: 1; }
     100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
   }
 
-  /* Matched sparkle ring */
-  .match-ring {
-    position: absolute;
-    inset: -10px;
-    border: 4px solid #ffd54f;
-    border-radius: 20px;
-    animation: ringPulse 0.6s ease-out forwards;
-    pointer-events: none;
+  /* ─── Win Overlay ─────────────────────────────────────── */
+  .win-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.92);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+  }
+  .win-overlay.show { display: flex; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .win-emoji { font-size: clamp(3rem, 10vw, 4.5rem); margin-bottom: 8px; }
+  .win-text {
+    font-size: clamp(1.8rem, 7vw, 3rem);
+    color: var(--pink-dark);
+    margin-bottom: 6px;
+    animation: winBounce 1s ease infinite;
+  }
+  @keyframes winBounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+  .win-moves {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: var(--purple);
+    margin-bottom: 4px;
+  }
+  .star-rating {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+  .star-rating .star {
+    font-size: clamp(2rem, 7vw, 3rem);
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+  .star-rating .star.reveal {
+    animation: starReveal 0.5s ease forwards;
+  }
+  .star-rating .star.empty-star {
+    filter: grayscale(1);
+    opacity: 0.25;
+  }
+  @keyframes starReveal {
+    0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.3) rotate(10deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .win-btn {
+    padding: 14px 42px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #ec407a, #ab47bc);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    box-shadow: 0 5px 18px rgba(233,30,99,0.35);
+    transition: transform 0.2s;
+    margin: 4px;
+  }
+  .win-btn:hover { transform: scale(1.06); }
+  .win-btn:active { transform: scale(0.95); }
+  .win-btn.secondary {
+    background: white;
+    color: var(--purple);
+    border: 2px solid var(--purple-light);
+    box-shadow: none;
+    font-size: 1rem;
+    padding: 10px 32px;
   }
 
-  @keyframes ringPulse {
-    0% { transform: scale(0.8); opacity: 1; border-color: #ffd54f; }
-    100% { transform: scale(1.15); opacity: 0; border-color: #ff80ab; }
+  /* ─── Settings Panel ──────────────────────────────────── */
+  .settings-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: 400;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .settings-overlay.open { opacity: 1; pointer-events: auto; }
+  .settings-panel {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%) scale(0.9);
+    background: white;
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.18);
+    z-index: 401;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    min-width: 260px;
+    text-align: center;
+  }
+  .settings-panel.open {
+    opacity: 1; pointer-events: auto;
+    transform: translate(-50%,-50%) scale(1);
+  }
+  .settings-panel h3 {
+    font-size: 1.3rem;
+    color: var(--pink-dark);
+    margin-bottom: 20px;
+  }
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 1rem;
+    color: #333;
+  }
+  .toggle { position: relative; width: 50px; height: 28px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: #ccc;
+    border-radius: 28px;
+    transition: 0.3s;
+    cursor: pointer;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    left: 3px; bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  .toggle input:checked + .toggle-slider { background: #ec407a; }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+  .settings-btn-row { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .reset-btn {
+    padding: 10px;
+    border: 2px solid #ef5350;
+    border-radius: 12px;
+    background: white;
+    color: #ef5350;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { background: #ffebee; }
+  .reset-btn:active { transform: scale(0.95); }
+  .close-btn {
+    padding: 10px;
+    border: 2px solid var(--purple-light);
+    border-radius: 12px;
+    background: white;
+    color: var(--purple);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .close-btn:hover { background: #f3e5f5; }
+  .close-btn:active { transform: scale(0.95); }
+
+  /* ─── Mobile Responsive ────────────────────────────── */
+  @media (max-width: 500px) {
+    .difficulty {
+      gap: 6px;
+    }
+    .diff-btn {
+      padding: 7px 14px;
+      font-size: 0.82rem;
+      min-width: 0;
+      flex: 0 0 auto;
+    }
+    .grid.cols-4 {
+      grid-template-columns: repeat(3, min(28vw, 130px));
+      grid-auto-rows: min(37.33vw, 173px);
+    }
+    .grid.cols-5 {
+      grid-template-columns: repeat(3, min(28vw, 130px));
+      grid-auto-rows: min(37.33vw, 173px);
+    }
+    .grid.cols-6 {
+      grid-template-columns: repeat(4, min(21vw, 115px));
+      grid-auto-rows: min(28vw, 153px);
+    }
+    .game-header { gap: 6px; }
+    .game-title { font-size: clamp(1rem, 3.5vw, 1.4rem); }
+    .screen { padding: 14px 10px; }
+    .game-hud { padding: 4px 0; }
+    .win-btn { padding: 12px 32px; font-size: 1.05rem; }
+    .settings-panel { padding: 22px 24px; min-width: 240px; }
   }
 </style>
 </head>
 <body>
 
-<h1>Princess & Unicorn Memory</h1>
-<p class="subtitle">Find all the matching pairs!</p>
-
-<div class="levels">
-  <button data-lvl="1" class="active" onclick="setLevel(1)">Pictures</button>
-  <button data-lvl="2" onclick="setLevel(2)">Words</button>
-  <button data-lvl="3" onclick="setLevel(3)">Numbers</button>
+<!-- ═══ MENU SCREEN ═══ -->
+<div id="menuScreen" class="screen visible">
+  <h1 class="menu-title">Princess & Unicorn Memory</h1>
+  <p class="menu-subtitle">Choose your adventure!</p>
+  <div class="total-stars-bar" id="totalStars"></div>
+  <div class="level-cards">
+    <div class="level-card" onclick="selectLevel(1)">
+      <div class="level-card-icon">👸</div>
+      <div class="level-card-title">Pictures</div>
+      <div class="level-card-stars" id="menu-stars-1"></div>
+    </div>
+    <div class="level-card" onclick="selectLevel(2)">
+      <div class="level-card-icon">📝</div>
+      <div class="level-card-title">Words</div>
+      <div class="level-card-stars" id="menu-stars-2"></div>
+    </div>
+    <div class="level-card" onclick="selectLevel(3)">
+      <div class="level-card-icon">🔢</div>
+      <div class="level-card-title">Numbers</div>
+      <div class="level-card-stars" id="menu-stars-3"></div>
+    </div>
+  </div>
+  <button class="menu-settings-btn" onclick="openSettings()">⚙️ Settings</button>
 </div>
 
-<div class="difficulty">
-  <button data-level="easy" onclick="setDifficulty('easy')">Easy</button>
-  <button data-level="medium" class="active" onclick="setDifficulty('medium')">Medium</button>
-  <button data-level="hard" onclick="setDifficulty('hard')">Hard</button>
+<!-- ═══ GAME SCREEN ═══ -->
+<div id="gameScreen" class="screen hidden">
+  <div class="game-header">
+    <button class="back-btn" onclick="showMenu()">←</button>
+    <h2 class="game-title" id="gameTitle">Pictures</h2>
+    <button class="gear-btn" onclick="openSettings()">⚙️</button>
+  </div>
+  <div class="difficulty" id="difficultyBar">
+    <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">Easy <span class="diff-stars" id="diff-stars-easy"></span></button>
+    <button class="diff-btn" data-level="medium" onclick="setDifficulty('medium')">Medium <span class="diff-stars" id="diff-stars-medium"></span></button>
+    <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">Hard <span class="diff-stars" id="diff-stars-hard"></span></button>
+  </div>
+  <div class="game-hud">
+    <div class="move-counter" id="moveCounter">Moves: 0</div>
+    <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 Hint (3)</button>
+  </div>
+  <div class="grid cols-3" id="grid"></div>
 </div>
 
-<div class="grid cols-3" id="grid"></div>
-
+<!-- ═══ WIN OVERLAY ═══ -->
 <div class="win-overlay" id="winOverlay">
-  <div class="win-emoji">&#x1F389;</div>
-  <div class="win-text">You did it!</div>
-  <p class="subtitle" style="margin-bottom:24px">All pairs found!</p>
-  <button class="play-again" onclick="startGame()">Play Again</button>
+  <div class="win-emoji">🎉</div>
+  <div class="win-text" id="winText">You did it!</div>
+  <div class="win-moves" id="winMoves"></div>
+  <div class="star-rating" id="starRating"></div>
+  <button class="win-btn" onclick="startGame()">Play Again</button>
+  <button class="win-btn secondary" onclick="showMenu()">Menu</button>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <h3>⚙️ Settings</h3>
+  <div class="setting-row">
+    <span>Sound</span>
+    <label class="toggle">
+      <input type="checkbox" id="soundToggle" checked onchange="toggleSound()">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="settings-btn-row">
+    <button class="reset-btn" onclick="resetProgress()">Reset Progress</button>
+    <button class="close-btn" onclick="closeSettings()">Close</button>
+  </div>
 </div>
 
 <script>
-// ─── SVG Illustrations ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
 const characters = [
   {
     name: "Princess",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Crown -->
       <polygon points="35,35 40,15 45,28 50,10 55,28 60,15 65,35" fill="#ffd54f" stroke="#f9a825" stroke-width="1.5"/>
       <circle cx="50" cy="14" r="3" fill="#e91e63"/>
       <circle cx="40" cy="19" r="2" fill="#7c4dff"/>
       <circle cx="60" cy="19" r="2" fill="#00bcd4"/>
-      <!-- Head -->
       <circle cx="50" cy="48" r="18" fill="#ffe0b2"/>
-      <!-- Eyes -->
       <ellipse cx="43" cy="46" rx="3" ry="3.5" fill="#5d4037"/>
       <circle cx="42" cy="44.5" r="1.2" fill="white"/>
       <ellipse cx="57" cy="46" rx="3" ry="3.5" fill="#5d4037"/>
       <circle cx="56" cy="44.5" r="1.2" fill="white"/>
-      <!-- Smile -->
       <path d="M44 54 Q50 60 56 54" fill="none" stroke="#e91e63" stroke-width="2" stroke-linecap="round"/>
-      <!-- Blush -->
       <ellipse cx="38" cy="52" rx="4" ry="2.5" fill="#ffcdd2" opacity="0.7"/>
       <ellipse cx="62" cy="52" rx="4" ry="2.5" fill="#ffcdd2" opacity="0.7"/>
-      <!-- Hair -->
       <path d="M32 42 Q28 25 38 20" fill="none" stroke="#f48fb1" stroke-width="5" stroke-linecap="round"/>
       <path d="M68 42 Q72 25 62 20" fill="none" stroke="#f48fb1" stroke-width="5" stroke-linecap="round"/>
       <path d="M32 48 Q26 60 30 75" fill="none" stroke="#f48fb1" stroke-width="6" stroke-linecap="round"/>
       <path d="M68 48 Q74 60 70 75" fill="none" stroke="#f48fb1" stroke-width="6" stroke-linecap="round"/>
-      <!-- Dress -->
       <path d="M38 65 L30 105 L70 105 L62 65 Z" fill="#ec407a"/>
       <path d="M38 65 Q50 75 62 65" fill="#f48fb1"/>
-      <!-- Belt -->
       <rect x="38" y="73" width="24" height="4" rx="2" fill="#ffd54f"/>
       <circle cx="50" cy="75" r="3" fill="#f9a825"/>
     </svg>`
@@ -358,35 +671,26 @@ const characters = [
   {
     name: "Fairy Princess",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Tiara -->
       <path d="M35 38 Q42 25 50 32 Q58 25 65 38" fill="none" stroke="#ce93d8" stroke-width="3"/>
       <circle cx="50" cy="30" r="3.5" fill="#e1bee7" stroke="#ab47bc" stroke-width="1"/>
       <circle cx="41" cy="33" r="2" fill="#f8bbd0"/>
       <circle cx="59" cy="33" r="2" fill="#f8bbd0"/>
-      <!-- Head -->
       <circle cx="50" cy="48" r="18" fill="#ffe0b2"/>
-      <!-- Eyes -->
       <ellipse cx="43" cy="46" rx="3" ry="3.5" fill="#4a148c"/>
       <circle cx="42" cy="44.5" r="1.2" fill="white"/>
       <ellipse cx="57" cy="46" rx="3" ry="3.5" fill="#4a148c"/>
       <circle cx="56" cy="44.5" r="1.2" fill="white"/>
-      <!-- Smile -->
       <path d="M44 54 Q50 60 56 54" fill="none" stroke="#e91e63" stroke-width="2" stroke-linecap="round"/>
-      <!-- Blush -->
       <ellipse cx="38" cy="52" rx="4" ry="2.5" fill="#f8bbd0" opacity="0.6"/>
       <ellipse cx="62" cy="52" rx="4" ry="2.5" fill="#f8bbd0" opacity="0.6"/>
-      <!-- Hair -->
       <path d="M32 40 Q25 20 40 18" fill="none" stroke="#7e57c2" stroke-width="5" stroke-linecap="round"/>
       <path d="M68 40 Q75 20 60 18" fill="none" stroke="#7e57c2" stroke-width="5" stroke-linecap="round"/>
       <path d="M32 48 Q22 65 28 85" fill="none" stroke="#7e57c2" stroke-width="6" stroke-linecap="round"/>
       <path d="M68 48 Q78 65 72 85" fill="none" stroke="#7e57c2" stroke-width="6" stroke-linecap="round"/>
-      <!-- Dress -->
       <path d="M38 65 L25 108 L75 108 L62 65 Z" fill="#9c27b0"/>
       <path d="M38 65 Q50 78 62 65" fill="#ce93d8"/>
-      <!-- Wings -->
       <ellipse cx="26" cy="72" rx="12" ry="20" fill="#e1bee7" opacity="0.6" transform="rotate(-15 26 72)"/>
       <ellipse cx="74" cy="72" rx="12" ry="20" fill="#e1bee7" opacity="0.6" transform="rotate(15 74 72)"/>
-      <!-- Stars on dress -->
       <text x="44" y="95" font-size="8" fill="#ffd54f">&#9733;</text>
       <text x="52" y="100" font-size="6" fill="#ffd54f">&#9733;</text>
     </svg>`
@@ -394,35 +698,26 @@ const characters = [
   {
     name: "Unicorn",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Horn -->
       <polygon points="50,5 44,30 56,30" fill="#ffd54f" stroke="#f9a825" stroke-width="1"/>
       <line x1="47" y1="14" x2="53" y2="14" stroke="#f9a825" stroke-width="1"/>
       <line x1="46" y1="20" x2="54" y2="20" stroke="#f9a825" stroke-width="1"/>
       <line x1="45" y1="26" x2="55" y2="26" stroke="#f9a825" stroke-width="1"/>
-      <!-- Head -->
       <ellipse cx="50" cy="48" rx="22" ry="20" fill="white" stroke="#e0e0e0" stroke-width="1"/>
-      <!-- Ear -->
       <path d="M33 32 L28 18 L38 28" fill="white" stroke="#e0e0e0" stroke-width="1"/>
       <path d="M67 32 L72 18 L62 28" fill="white" stroke="#e0e0e0" stroke-width="1"/>
-      <!-- Eye -->
       <ellipse cx="40" cy="45" rx="4" ry="5" fill="#5d4037"/>
       <circle cx="38.5" cy="43" r="1.8" fill="white"/>
       <ellipse cx="60" cy="45" rx="4" ry="5" fill="#5d4037"/>
       <circle cx="58.5" cy="43" r="1.8" fill="white"/>
-      <!-- Nose -->
       <ellipse cx="46" cy="55" rx="1.5" ry="1" fill="#f48fb1"/>
       <ellipse cx="54" cy="55" rx="1.5" ry="1" fill="#f48fb1"/>
-      <!-- Smile -->
       <path d="M44 58 Q50 63 56 58" fill="none" stroke="#f48fb1" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Rainbow Mane -->
       <path d="M30 30 Q18 40 22 58" fill="none" stroke="#e91e63" stroke-width="4" stroke-linecap="round"/>
       <path d="M28 33 Q15 45 20 62" fill="none" stroke="#ff9800" stroke-width="4" stroke-linecap="round"/>
       <path d="M26 36 Q12 50 18 66" fill="none" stroke="#fdd835" stroke-width="4" stroke-linecap="round"/>
       <path d="M24 39 Q10 55 16 70" fill="none" stroke="#66bb6a" stroke-width="4" stroke-linecap="round"/>
       <path d="M22 42 Q8 60 14 74" fill="none" stroke="#42a5f5" stroke-width="4" stroke-linecap="round"/>
-      <!-- Body -->
       <ellipse cx="50" cy="88" rx="28" ry="18" fill="white" stroke="#e0e0e0" stroke-width="1"/>
-      <!-- Legs -->
       <rect x="32" y="100" width="8" height="16" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1"/>
       <rect x="60" y="100" width="8" height="16" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1"/>
     </svg>`
@@ -430,36 +725,26 @@ const characters = [
   {
     name: "Pink Unicorn",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Horn -->
       <polygon points="55,5 49,30 61,30" fill="#e1bee7" stroke="#ab47bc" stroke-width="1"/>
       <line x1="52" y1="14" x2="58" y2="14" stroke="#ab47bc" stroke-width="1"/>
       <line x1="51" y1="20" x2="59" y2="20" stroke="#ab47bc" stroke-width="1"/>
-      <!-- Stars -->
       <text x="20" y="20" font-size="10" fill="#ffd54f">&#9733;</text>
       <text x="72" y="25" font-size="7" fill="#ffd54f">&#9733;</text>
       <text x="15" y="45" font-size="6" fill="#ffd54f">&#9733;</text>
-      <!-- Head -->
       <ellipse cx="50" cy="48" rx="22" ry="20" fill="#fce4ec" stroke="#f48fb1" stroke-width="1"/>
-      <!-- Ear -->
       <path d="M33 32 L28 18 L38 28" fill="#fce4ec" stroke="#f48fb1" stroke-width="1"/>
       <path d="M67 32 L72 18 L62 28" fill="#fce4ec" stroke="#f48fb1" stroke-width="1"/>
-      <!-- Eye -->
       <ellipse cx="40" cy="45" rx="4" ry="5" fill="#880e4f"/>
       <circle cx="38.5" cy="43" r="1.8" fill="white"/>
       <ellipse cx="60" cy="45" rx="4" ry="5" fill="#880e4f"/>
       <circle cx="58.5" cy="43" r="1.8" fill="white"/>
-      <!-- Blush -->
       <ellipse cx="35" cy="53" rx="4" ry="2.5" fill="#f8bbd0" opacity="0.5"/>
       <ellipse cx="65" cy="53" rx="4" ry="2.5" fill="#f8bbd0" opacity="0.5"/>
-      <!-- Smile -->
       <path d="M44 57 Q50 62 56 57" fill="none" stroke="#e91e63" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Mane -->
       <path d="M30 30 Q18 42 22 60" fill="none" stroke="#f48fb1" stroke-width="5" stroke-linecap="round"/>
       <path d="M28 35 Q14 48 19 65" fill="none" stroke="#ce93d8" stroke-width="5" stroke-linecap="round"/>
       <path d="M26 40 Q12 55 17 70" fill="none" stroke="#f48fb1" stroke-width="5" stroke-linecap="round"/>
-      <!-- Body -->
       <ellipse cx="50" cy="88" rx="28" ry="18" fill="#fce4ec" stroke="#f48fb1" stroke-width="1"/>
-      <!-- Legs -->
       <rect x="32" y="100" width="8" height="16" rx="4" fill="#fce4ec" stroke="#f48fb1" stroke-width="1"/>
       <rect x="60" y="100" width="8" height="16" rx="4" fill="#fce4ec" stroke="#f48fb1" stroke-width="1"/>
     </svg>`
@@ -467,32 +752,26 @@ const characters = [
   {
     name: "Castle",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Left tower -->
       <rect x="10" y="30" width="20" height="80" fill="#f8bbd0"/>
       <rect x="8" y="22" width="24" height="12" fill="#ec407a"/>
       <rect x="8" y="22" width="6" height="8" fill="#ad1457"/>
       <rect x="18" y="22" width="6" height="8" fill="#ad1457"/>
       <rect x="26" y="22" width="6" height="8" fill="#ad1457"/>
-      <!-- Right tower -->
       <rect x="70" y="30" width="20" height="80" fill="#f8bbd0"/>
       <rect x="68" y="22" width="24" height="12" fill="#ec407a"/>
       <rect x="68" y="22" width="6" height="8" fill="#ad1457"/>
       <rect x="78" y="22" width="6" height="8" fill="#ad1457"/>
       <rect x="86" y="22" width="6" height="8" fill="#ad1457"/>
-      <!-- Center -->
       <rect x="25" y="45" width="50" height="65" fill="#fce4ec"/>
       <rect x="23" y="38" width="54" height="12" fill="#ec407a"/>
       <rect x="23" y="38" width="7" height="8" fill="#ad1457"/>
       <rect x="37" y="38" width="7" height="8" fill="#ad1457"/>
       <rect x="50" y="38" width="7" height="8" fill="#ad1457"/>
       <rect x="63" y="38" width="7" height="8" fill="#ad1457"/>
-      <!-- Flag -->
       <line x1="50" y1="38" x2="50" y2="12" stroke="#8e24aa" stroke-width="2"/>
       <path d="M50 12 L65 19 L50 26" fill="#e91e63"/>
-      <!-- Door -->
       <path d="M40 110 L40 85 Q50 75 60 85 L60 110 Z" fill="#ad1457"/>
       <circle cx="57" cy="95" r="2" fill="#ffd54f"/>
-      <!-- Windows -->
       <circle cx="20" cy="55" r="5" fill="#bbdefb"/>
       <line x1="20" y1="50" x2="20" y2="60" stroke="#ec407a" stroke-width="1"/>
       <line x1="15" y1="55" x2="25" y2="55" stroke="#ec407a" stroke-width="1"/>
@@ -501,62 +780,43 @@ const characters = [
       <line x1="75" y1="55" x2="85" y2="55" stroke="#ec407a" stroke-width="1"/>
       <circle cx="37" cy="65" r="4" fill="#bbdefb"/>
       <circle cx="63" cy="65" r="4" fill="#bbdefb"/>
-      <!-- Hearts -->
       <text x="46" y="70" font-size="8" fill="#e91e63">&#x2665;</text>
     </svg>`
   },
   {
     name: "Magic Wand",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Wand stick -->
       <line x1="25" y1="105" x2="58" y2="42" stroke="#f48fb1" stroke-width="5" stroke-linecap="round"/>
       <line x1="25" y1="105" x2="58" y2="42" stroke="#fce4ec" stroke-width="2" stroke-linecap="round"/>
-      <!-- Star -->
       <polygon points="60,15 64,30 80,30 67,39 72,55 60,45 48,55 53,39 40,30 56,30" fill="#ffd54f" stroke="#f9a825" stroke-width="1.5"/>
       <polygon points="60,22 62,30 70,30 64,35 66,43 60,38 54,43 56,35 50,30 58,30" fill="#fff9c4"/>
-      <!-- Sparkles -->
       <circle cx="35" cy="30" r="3" fill="#e1bee7" opacity="0.8"/>
       <circle cx="82" cy="45" r="2.5" fill="#f48fb1" opacity="0.8"/>
       <circle cx="45" cy="55" r="2" fill="#ffd54f" opacity="0.8"/>
       <circle cx="75" cy="20" r="2" fill="#80deea" opacity="0.8"/>
       <circle cx="30" cy="60" r="1.5" fill="#c5e1a5" opacity="0.8"/>
-      <!-- Sparkle crosses -->
-      <g fill="none" stroke="#ffd54f" stroke-width="1.5" stroke-linecap="round">
-        <line x1="85" y1="55" x2="85" y2="65"/>
-        <line x1="80" y1="60" x2="90" y2="60"/>
-      </g>
-      <g fill="none" stroke="#f48fb1" stroke-width="1.5" stroke-linecap="round">
-        <line x1="25" y1="42" x2="25" y2="50"/>
-        <line x1="21" y1="46" x2="29" y2="46"/>
-      </g>
-      <g fill="none" stroke="#ce93d8" stroke-width="1.5" stroke-linecap="round">
-        <line x1="70" y1="68" x2="70" y2="74"/>
-        <line x1="67" y1="71" x2="73" y2="71"/>
-      </g>
-      <!-- Tiny stars -->
+      <g fill="none" stroke="#ffd54f" stroke-width="1.5" stroke-linecap="round"><line x1="85" y1="55" x2="85" y2="65"/><line x1="80" y1="60" x2="90" y2="60"/></g>
+      <g fill="none" stroke="#f48fb1" stroke-width="1.5" stroke-linecap="round"><line x1="25" y1="42" x2="25" y2="50"/><line x1="21" y1="46" x2="29" y2="46"/></g>
+      <g fill="none" stroke="#ce93d8" stroke-width="1.5" stroke-linecap="round"><line x1="70" y1="68" x2="70" y2="74"/><line x1="67" y1="71" x2="73" y2="71"/></g>
       <text x="20" y="25" font-size="10" fill="#ffd54f" opacity="0.6">&#9733;</text>
       <text x="78" y="75" font-size="8" fill="#ce93d8" opacity="0.6">&#9733;</text>
-      <text x="40" y="75" font-size="7" fill="#f48fb1" opacity="0.6">&#9733;</text>
     </svg>`
   },
   {
     name: "Rainbow",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Rainbow arcs -->
       <path d="M5 85 Q5 20 50 20 Q95 20 95 85" fill="none" stroke="#e91e63" stroke-width="6" stroke-linecap="round"/>
       <path d="M12 85 Q12 28 50 28 Q88 28 88 85" fill="none" stroke="#ff9800" stroke-width="6" stroke-linecap="round"/>
       <path d="M19 85 Q19 36 50 36 Q81 36 81 85" fill="none" stroke="#fdd835" stroke-width="6" stroke-linecap="round"/>
       <path d="M26 85 Q26 44 50 44 Q74 44 74 85" fill="none" stroke="#66bb6a" stroke-width="6" stroke-linecap="round"/>
       <path d="M33 85 Q33 52 50 52 Q67 52 67 85" fill="none" stroke="#42a5f5" stroke-width="6" stroke-linecap="round"/>
       <path d="M40 85 Q40 60 50 60 Q60 60 60 85" fill="none" stroke="#7e57c2" stroke-width="6" stroke-linecap="round"/>
-      <!-- Clouds -->
       <ellipse cx="15" cy="88" rx="15" ry="10" fill="white"/>
       <ellipse cx="5" cy="85" rx="10" ry="8" fill="white"/>
       <ellipse cx="25" cy="84" rx="10" ry="8" fill="white"/>
       <ellipse cx="85" cy="88" rx="15" ry="10" fill="white"/>
       <ellipse cx="75" cy="85" rx="10" ry="8" fill="white"/>
       <ellipse cx="95" cy="85" rx="10" ry="8" fill="white"/>
-      <!-- Stars -->
       <text x="44" y="18" font-size="8" fill="#ffd54f">&#9733;</text>
       <text x="20" y="50" font-size="6" fill="#ffd54f">&#9733;</text>
       <text x="74" y="48" font-size="6" fill="#ffd54f">&#9733;</text>
@@ -565,100 +825,133 @@ const characters = [
   {
     name: "Crown",
     svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <!-- Crown base -->
       <path d="M15 80 L15 45 L30 60 L50 30 L70 60 L85 45 L85 80 Z" fill="#ffd54f" stroke="#f9a825" stroke-width="2"/>
-      <!-- Crown band -->
       <rect x="15" y="75" width="70" height="12" rx="3" fill="#f9a825"/>
-      <!-- Gems -->
       <circle cx="50" cy="36" r="5" fill="#e91e63" stroke="#c2185b" stroke-width="1"/>
       <circle cx="30" cy="55" r="4" fill="#7c4dff" stroke="#651fff" stroke-width="1"/>
       <circle cx="70" cy="55" r="4" fill="#00bcd4" stroke="#00838f" stroke-width="1"/>
-      <!-- Band gems -->
       <circle cx="30" cy="81" r="3" fill="#e91e63"/>
       <circle cx="50" cy="81" r="3.5" fill="#7c4dff"/>
       <circle cx="70" cy="81" r="3" fill="#00bcd4"/>
-      <!-- Smaller decorations -->
       <circle cx="40" cy="81" r="1.5" fill="white" opacity="0.6"/>
       <circle cx="60" cy="81" r="1.5" fill="white" opacity="0.6"/>
-      <!-- Shine lines -->
       <line x1="22" y1="55" x2="22" y2="65" stroke="#fff9c4" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
       <line x1="78" y1="55" x2="78" y2="65" stroke="#fff9c4" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-      <!-- Sparkles around crown -->
       <text x="5" y="40" font-size="8" fill="#ffd54f" opacity="0.7">&#10022;</text>
       <text x="87" y="38" font-size="8" fill="#ffd54f" opacity="0.7">&#10022;</text>
       <text x="46" y="22" font-size="6" fill="#fff9c4">&#10022;</text>
-      <!-- Pillow under crown -->
       <ellipse cx="50" cy="100" rx="35" ry="12" fill="#e1bee7"/>
       <ellipse cx="50" cy="98" rx="32" ry="9" fill="#f3e5f5"/>
-      <!-- Tassels -->
       <circle cx="18" cy="104" r="4" fill="#ce93d8"/>
       <circle cx="82" cy="104" r="4" fill="#ce93d8"/>
     </svg>`
   }
 ];
 
-// ─── Word Data for Level 2 ──────────────────────────────────────
 const words = [
-  { name: 'PAPA',  color: '#e91e63', bg: '#fce4ec' },
-  { name: 'MAMA',  color: '#9c27b0', bg: '#f3e5f5' },
-  { name: 'MAYA',  color: '#2196f3', bg: '#e3f2fd' },
-  { name: 'LEYLA', color: '#e65100', bg: '#fff3e0' },
-  { name: 'PAATI', color: '#00897b', bg: '#e0f2f1' },
-  { name: 'TATA',  color: '#5e35b1', bg: '#ede7f6' },
-  { name: 'OMA',   color: '#c62828', bg: '#ffebee' },
-  { name: 'OPA',   color: '#1565c0', bg: '#e3f2fd' },
-  { name: 'KAYA',  color: '#ad1457', bg: '#fce4ec' }
+  { name: 'PAPA',  color: '#c2185b', bg: '#fce4ec' },
+  { name: 'MAMA',  color: '#7b1fa2', bg: '#f3e5f5' },
+  { name: 'MAYA',  color: '#1565c0', bg: '#bbdefb' },
+  { name: 'LEYLA', color: '#e65100', bg: '#ffe0b2' },
+  { name: 'PAATI', color: '#00695c', bg: '#b2dfdb' },
+  { name: 'TATA',  color: '#4527a0', bg: '#d1c4e9' },
+  { name: 'OMA',   color: '#b71c1c', bg: '#ffcdd2' },
+  { name: 'OPA',   color: '#0d47a1', bg: '#bbdefb' },
+  { name: 'KAYA',  color: '#880e4f', bg: '#f8bbd0' }
 ];
 
-// ─── Number Data for Level 3 ────────────────────────────────────
 const numbers = [
-  { name: '0',  color: '#e91e63', bg: '#fce4ec' },
-  { name: '1',  color: '#9c27b0', bg: '#f3e5f5' },
-  { name: '2',  color: '#2196f3', bg: '#e3f2fd' },
-  { name: '3',  color: '#ff9800', bg: '#fff3e0' },
-  { name: '4',  color: '#00897b', bg: '#e0f2f1' },
-  { name: '5',  color: '#5e35b1', bg: '#ede7f6' },
-  { name: '6',  color: '#c62828', bg: '#ffebee' },
-  { name: '7',  color: '#1565c0', bg: '#e3f2fd' },
-  { name: '8',  color: '#ad1457', bg: '#fce4ec' },
-  { name: '9',  color: '#00695c', bg: '#e0f2f1' },
-  { name: '10', color: '#4527a0', bg: '#ede7f6' }
+  { name: '0',  color: '#c2185b', bg: '#f8bbd0' },
+  { name: '1',  color: '#7b1fa2', bg: '#ce93d8' },
+  { name: '2',  color: '#1565c0', bg: '#90caf9' },
+  { name: '3',  color: '#e65100', bg: '#ffcc80' },
+  { name: '4',  color: '#00695c', bg: '#80cbc4' },
+  { name: '5',  color: '#4527a0', bg: '#b39ddb' },
+  { name: '6',  color: '#b71c1c', bg: '#ef9a9a' },
+  { name: '7',  color: '#0d47a1', bg: '#90caf9' },
+  { name: '8',  color: '#880e4f', bg: '#f48fb1' },
+  { name: '9',  color: '#00695c', bg: '#80cbc4' },
+  { name: '10', color: '#4527a0', bg: '#b39ddb' }
 ];
 
-// ─── Game State ─────────────────────────────────────────────────
 const difficultyConfig = {
   1: { easy: { pairs: 3, cols: 3 }, medium: { pairs: 6, cols: 4 }, hard: { pairs: 8, cols: 4 } },
   2: { easy: { pairs: 3, cols: 3 }, medium: { pairs: 6, cols: 4 }, hard: { pairs: 9, cols: 6 } },
   3: { easy: { pairs: 3, cols: 3 }, medium: { pairs: 6, cols: 4 }, hard: { pairs: 10, cols: 5 } }
 };
 
+const levelNames = { 1: 'Pictures', 2: 'Words', 3: 'Numbers' };
+
+// ═══════════════════════════════════════════════════════════════
+// SOUND ENGINE (Web Audio API)
+// ═══════════════════════════════════════════════════════════════
+const Sound = {
+  ctx: null,
+  enabled: true,
+  init() {
+    if (this.ctx) return;
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  },
+  play(freq, type, dur, vol = 0.2, delay = 0) {
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime + delay;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + dur + 0.05);
+  },
+  flip()      { this.play(800, 'sine', 0.07, 0.12); },
+  match()     { this.play(523, 'triangle', 0.15, 0.2); this.play(659, 'triangle', 0.2, 0.2, 0.1); },
+  mismatch()  { this.play(220, 'sine', 0.2, 0.1); this.play(210, 'sine', 0.2, 0.1); },
+  win()       { [523,659,784,1047].forEach((f,i) => this.play(f, 'triangle', 0.3, 0.18, i*0.15)); },
+  click()     { this.play(600, 'sine', 0.04, 0.08); },
+  hint()      { this.play(1200,'sine',0.08,0.12); this.play(900,'sine',0.08,0.12,0.07); this.play(1100,'sine',0.12,0.08,0.14); },
+  deal(i, n)  { this.play(400 + (i/n)*400, 'sine', 0.05, 0.06); }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// STORAGE (localStorage)
+// ═══════════════════════════════════════════════════════════════
+const Storage = {
+  KEY: 'princess-memory-v1',
+  SKEY: 'princess-memory-settings',
+  getProgress() { try { return JSON.parse(localStorage.getItem(this.KEY)) || {}; } catch { return {}; } },
+  getStars(lvl, diff) { return (this.getProgress()[`${lvl}-${diff}`] || {}).stars || 0; },
+  saveStars(lvl, diff, stars) {
+    const p = this.getProgress();
+    const k = `${lvl}-${diff}`;
+    if (stars > ((p[k]||{}).stars||0)) { p[k] = { stars }; localStorage.setItem(this.KEY, JSON.stringify(p)); }
+  },
+  bestForLevel(lvl) { return Math.max(this.getStars(lvl,'easy'), this.getStars(lvl,'medium'), this.getStars(lvl,'hard')); },
+  totalStars() { return Object.values(this.getProgress()).reduce((s,v) => s + (v.stars||0), 0); },
+  maxStars() { return 27; }, // 3 levels × 3 difficulties × 3 stars
+  getSettings() { try { return JSON.parse(localStorage.getItem(this.SKEY)) || { sound: true }; } catch { return { sound: true }; } },
+  saveSettings(s) { localStorage.setItem(this.SKEY, JSON.stringify(s)); },
+  reset() { localStorage.removeItem(this.KEY); }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════════
 let currentLevel = 1;
-let currentDifficulty = 'medium';
+let currentDifficulty = 'easy';
 let cards = [];
 let flippedCards = [];
 let matchedPairs = 0;
 let totalPairs = 0;
 let locked = false;
+let moveCount = 0;
+let hintsRemaining = 3;
 
-// ─── Level ──────────────────────────────────────────────────────
-function setLevel(level) {
-  currentLevel = level;
-  document.querySelectorAll('.levels button').forEach(b => {
-    b.classList.toggle('active', Number(b.dataset.lvl) === level);
-  });
-  startGame();
-}
-
-// ─── Difficulty ─────────────────────────────────────────────────
-function setDifficulty(level) {
-  currentDifficulty = level;
-  document.querySelectorAll('.difficulty button').forEach(b => {
-    b.classList.toggle('active', b.dataset.level === level);
-  });
-  startGame();
-}
-
-// ─── Shuffle ────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -667,65 +960,164 @@ function shuffle(arr) {
   return arr;
 }
 
-// ─── Create Sparkles ────────────────────────────────────────────
-function createSparkles(card) {
-  const colors = ['#ffd54f', '#f48fb1', '#ce93d8', '#80deea', '#c5e1a5'];
-  for (let i = 0; i < 6; i++) {
-    const sparkle = document.createElement('div');
-    sparkle.className = 'sparkle';
-    sparkle.style.cssText = `
-      left: ${Math.random() * 100}%;
-      top: ${Math.random() * 100}%;
-      width: 12px; height: 12px;
-      background: ${colors[Math.floor(Math.random() * colors.length)]};
-      border-radius: 50%;
-    `;
-    card.appendChild(sparkle);
-    setTimeout(() => sparkle.remove(), 700);
-  }
+function calcStars(moves, pairs) {
+  if (moves <= pairs * 2) return 3;
+  if (moves <= pairs * 3) return 2;
+  return 1;
+}
 
+function renderStars(count, size) {
+  const sz = size || '1.2rem';
+  let h = '';
+  for (let i = 0; i < 3; i++) h += `<span class="star-icon ${i < count ? 'earned' : 'empty'}" style="font-size:${sz}">★</span>`;
+  return h;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function showMenu() {
+  Sound.init(); Sound.click();
+  document.getElementById('menuScreen').classList.replace('hidden','visible');
+  document.getElementById('gameScreen').classList.replace('visible','hidden');
+  document.getElementById('winOverlay').classList.remove('show');
+  updateMenuStars();
+}
+
+function selectLevel(lvl) {
+  Sound.init(); Sound.click();
+  currentLevel = lvl;
+  document.getElementById('menuScreen').classList.replace('visible','hidden');
+  document.getElementById('gameScreen').classList.replace('hidden','visible');
+  document.getElementById('gameTitle').textContent = levelNames[lvl];
+  updateDifficultyStars();
+  startGame();
+}
+
+function updateMenuStars() {
+  const total = Storage.totalStars();
+  const max = Storage.maxStars();
+  document.getElementById('totalStars').innerHTML = total > 0
+    ? `<span class="star-icon earned">★</span> ${total} / ${max} stars collected`
+    : 'Collect stars by completing games!';
+  for (let l = 1; l <= 3; l++) {
+    document.getElementById(`menu-stars-${l}`).innerHTML = renderStars(Storage.bestForLevel(l));
+  }
+}
+
+function updateDifficultyStars() {
+  ['easy','medium','hard'].forEach(d => {
+    const s = Storage.getStars(currentLevel, d);
+    document.getElementById(`diff-stars-${d}`).innerHTML = s > 0 ? renderStars(s, '0.7rem') : '';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════
+function openSettings() { Sound.click(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
+function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); document.getElementById('settingsOverlay').classList.remove('open'); }
+function toggleSound() { Sound.enabled = document.getElementById('soundToggle').checked; Storage.saveSettings({ sound: Sound.enabled }); if (Sound.enabled) Sound.click(); }
+function resetProgress() {
+  Storage.reset();
+  updateMenuStars();
+  updateDifficultyStars();
+  closeSettings();
+}
+function loadSettings() {
+  const s = Storage.getSettings();
+  Sound.enabled = s.sound;
+  document.getElementById('soundToggle').checked = s.sound;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DIFFICULTY
+// ═══════════════════════════════════════════════════════════════
+function setDifficulty(d) {
+  Sound.init(); Sound.click();
+  currentDifficulty = d;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.level === d));
+  startGame();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EFFECTS
+// ═══════════════════════════════════════════════════════════════
+function createSparkles(card) {
+  const colors = ['#ffd54f','#f48fb1','#ce93d8','#80deea','#c5e1a5'];
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:10px;height:10px;background:${colors[i%5]};border-radius:50%;`;
+    card.appendChild(s);
+    setTimeout(() => s.remove(), 700);
+  }
   const ring = document.createElement('div');
   ring.className = 'match-ring';
   card.appendChild(ring);
   setTimeout(() => ring.remove(), 600);
 }
 
-// ─── Confetti ───────────────────────────────────────────────────
 function launchConfetti() {
-  const colors = ['#e91e63', '#9c27b0', '#ffd54f', '#4caf50', '#42a5f5', '#ff9800', '#f48fb1', '#ce93d8'];
-  const shapes = ['&#9733;', '&#x2665;', '&#9679;', '&#9830;'];
-  for (let i = 0; i < 60; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
-    piece.style.cssText = `
-      left: ${Math.random() * 100}vw;
-      color: ${colors[Math.floor(Math.random() * colors.length)]};
-      font-size: ${12 + Math.random() * 18}px;
-      animation-duration: ${2 + Math.random() * 3}s;
-      animation-delay: ${Math.random() * 1.5}s;
-    `;
-    document.body.appendChild(piece);
-    setTimeout(() => piece.remove(), 5000);
+  const colors = ['#e91e63','#9c27b0','#ffd54f','#4caf50','#42a5f5','#ff9800','#f48fb1','#ce93d8'];
+  const shapes = ['★','♥','●','♦'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.textContent = shapes[Math.floor(Math.random()*4)];
+    p.style.cssText = `left:${Math.random()*100}vw;color:${colors[Math.floor(Math.random()*8)]};font-size:${12+Math.random()*16}px;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.2}s;`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 5000);
   }
 }
 
-// ─── Card Click ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// HINT
+// ═══════════════════════════════════════════════════════════════
+function useHint() {
+  if (hintsRemaining <= 0 || locked) return;
+  Sound.init(); Sound.hint();
+  hintsRemaining--;
+  updateHintBtn();
+  locked = true;
+  cards.forEach(c => { if (!c.matched) c.el.classList.add('flipped'); });
+  setTimeout(() => {
+    cards.forEach(c => {
+      if (!c.matched) { c.flipped = false; c.el.classList.remove('flipped'); }
+    });
+    flippedCards = [];
+    locked = false;
+  }, 1500);
+}
+
+function updateHintBtn() {
+  const btn = document.getElementById('hintBtn');
+  btn.textContent = `💡 Hint (${hintsRemaining})`;
+  btn.disabled = hintsRemaining <= 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CARD FLIP
+// ═══════════════════════════════════════════════════════════════
 function flipCard(index) {
   if (locked) return;
+  Sound.init();
   const card = cards[index];
   if (!card || card.flipped || card.matched) return;
 
+  Sound.flip();
   card.flipped = true;
   card.el.classList.add('flipped');
   flippedCards.push(index);
 
   if (flippedCards.length === 2) {
+    moveCount++;
+    document.getElementById('moveCounter').textContent = `Moves: ${moveCount}`;
     locked = true;
     const [a, b] = flippedCards;
 
     if (cards[a].charIndex === cards[b].charIndex) {
-      // Match!
+      Sound.match();
       cards[a].matched = true;
       cards[b].matched = true;
       matchedPairs++;
@@ -735,18 +1127,20 @@ function flipCard(index) {
         createSparkles(cards[a].el);
         createSparkles(cards[b].el);
       }, 300);
-
       flippedCards = [];
       locked = false;
 
       if (matchedPairs === totalPairs) {
         setTimeout(() => {
-          document.getElementById('winOverlay').classList.add('show');
+          const stars = calcStars(moveCount, totalPairs);
+          Storage.saveStars(currentLevel, currentDifficulty, stars);
+          showWin(stars);
+          Sound.win();
           launchConfetti();
-        }, 800);
+        }, 700);
       }
     } else {
-      // No match — flip back
+      Sound.mismatch();
       setTimeout(() => {
         cards[a].flipped = false;
         cards[b].flipped = false;
@@ -754,21 +1148,54 @@ function flipCard(index) {
         cards[b].el.classList.remove('flipped');
         flippedCards = [];
         locked = false;
-      }, 900);
+      }, 850);
     }
   }
 }
 
-// ─── Start Game ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// WIN SCREEN
+// ═══════════════════════════════════════════════════════════════
+function showWin(stars) {
+  const overlay = document.getElementById('winOverlay');
+  overlay.classList.add('show');
+  const winTitles3 = ['Amazing!', 'You did it!', 'Super star!', 'Wonderful!', 'Brilliant!'];
+  const winTitles2 = ['Great job!', 'Well done!', 'You did it!', 'Awesome!'];
+  const winTitles1 = ['You did it!', 'Good try!', 'Nice work!'];
+  const titles = stars === 3 ? winTitles3 : stars === 2 ? winTitles2 : winTitles1;
+  document.getElementById('winText').textContent = titles[Math.floor(Math.random() * titles.length)];
+  const perfect = totalPairs * 2;
+  document.getElementById('winMoves').textContent = moveCount <= perfect
+    ? `Perfect! ${moveCount} moves!`
+    : `Done in ${moveCount} moves!`;
+  const sr = document.getElementById('starRating');
+  sr.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const s = document.createElement('span');
+    s.className = `star ${i < stars ? 'reveal' : 'empty-star reveal'}`;
+    s.textContent = '⭐';
+    s.style.animationDelay = `${0.3 + i * 0.25}s`;
+    sr.appendChild(s);
+  }
+  updateDifficultyStars();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// START GAME
+// ═══════════════════════════════════════════════════════════════
 function startGame() {
+  Sound.init();
   const config = difficultyConfig[currentLevel][currentDifficulty];
   const { pairs, cols } = config;
   totalPairs = pairs;
   matchedPairs = 0;
   flippedCards = [];
-  locked = false;
+  locked = true;
   cards = [];
-
+  moveCount = 0;
+  hintsRemaining = 3;
+  document.getElementById('moveCounter').textContent = 'Moves: 0';
+  updateHintBtn();
   document.getElementById('winOverlay').classList.remove('show');
 
   const grid = document.getElementById('grid');
@@ -776,65 +1203,68 @@ function startGame() {
   grid.className = `grid cols-${cols}`;
 
   let deck;
-
   if (currentLevel === 1) {
-    const selected = shuffle([...characters]).slice(0, pairs);
-    deck = shuffle([...selected, ...selected].map((ch) => ({
-      charIndex: characters.indexOf(ch),
-      content: ch
-    })));
+    const sel = shuffle([...characters]).slice(0, pairs);
+    deck = shuffle([...sel, ...sel].map(ch => ({ charIndex: characters.indexOf(ch), content: ch })));
   } else {
     const source = currentLevel === 2 ? words : numbers;
-    const selected = shuffle([...source]).slice(0, pairs);
-    deck = shuffle([...selected, ...selected].map((w) => ({
-      charIndex: source.indexOf(w),
-      content: w
-    })));
+    const sel = shuffle([...source]).slice(0, pairs);
+    deck = shuffle([...sel, ...sel].map(w => ({ charIndex: source.indexOf(w), content: w })));
   }
 
   deck.forEach((item, i) => {
     const card = document.createElement('div');
-    card.className = 'card';
+    card.className = 'card dealing';
     card.onclick = () => flipCard(i);
 
-    let frontContent;
+    let front;
     if (currentLevel === 1) {
-      frontContent = `
-        ${item.content.svg}
-        <div class="card-label">${item.content.name}</div>
-      `;
+      front = `${item.content.svg}<div class="card-label">${item.content.name}</div>`;
     } else {
       const w = item.content;
-      const fontSize = w.name.length <= 2 ? 'clamp(2rem, 6vw, 3rem)' :
-                       w.name.length <= 3 ? 'clamp(1.6rem, 5vw, 2.4rem)' :
-                       w.name.length <= 4 ? 'clamp(1.3rem, 4vw, 2rem)' :
-                                            'clamp(1rem, 3.5vw, 1.6rem)';
-      frontContent = `
-        <div class="word-text" style="color:${w.color}; font-size:${fontSize}">${w.name}</div>
-      `;
+      const fs = w.name.length <= 2 ? 'clamp(1.8rem,5vw,2.6rem)' :
+                 w.name.length <= 3 ? 'clamp(1.4rem,4.5vw,2.2rem)' :
+                 w.name.length <= 4 ? 'clamp(1.1rem,3.5vw,1.8rem)' :
+                                      'clamp(0.9rem,3vw,1.4rem)';
+      front = `<div class="word-text" style="color:${w.color};font-size:${fs}">${w.name}</div>`;
     }
 
+    const bgStyle = currentLevel !== 1 ? `style="background:${item.content.bg}"` : '';
     card.innerHTML = `
-      <div class="card-face card-back">
-        <span class="card-back-icon">&#x2728;</span>
-      </div>
-      <div class="card-face card-front" ${currentLevel !== 1 ? `style="background:${item.content.bg}"` : ''}>
-        ${frontContent}
-      </div>
+      <div class="card-face card-back"><span class="card-back-icon">✨</span></div>
+      <div class="card-face card-front" ${bgStyle}>${front}</div>
     `;
 
     grid.appendChild(card);
-    cards.push({
-      el: card,
-      charIndex: item.charIndex,
-      flipped: false,
-      matched: false
+    cards.push({ el: card, charIndex: item.charIndex, flipped: false, matched: false });
+  });
+
+  // Deal animation
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      cards.forEach((c, i) => {
+        setTimeout(() => {
+          c.el.classList.remove('dealing');
+          c.el.classList.add('dealt');
+          Sound.deal(i, cards.length);
+        }, i * 50);
+      });
+      setTimeout(() => {
+        locked = false;
+        cards.forEach(c => c.el.classList.remove('dealt'));
+      }, cards.length * 50 + 400);
     });
   });
 }
 
-// ─── Init ───────────────────────────────────────────────────────
-startGame();
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+function setVH() { document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px'); }
+window.addEventListener('resize', setVH);
+setVH();
+loadSettings();
+updateMenuStars();
 </script>
 </body>
 </html>
