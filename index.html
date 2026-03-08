@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Princess Memory">
+<meta name="apple-mobile-web-app-title" content="Maya's Game">
 <meta name="theme-color" content="#fce4ec">
-<title>Princess & Unicorn Memory</title>
+<title>Maya's Game</title>
 <style>
   :root {
     --pink: #e91e90;
@@ -321,9 +321,16 @@
     box-shadow: 0 3px 12px rgba(0,0,0,0.08);
   }
   .card-back {
-    background: linear-gradient(135deg, var(--pink), var(--purple));
+    background: linear-gradient(135deg, #d81b60, #8e24aa, #e91e90, #7b1fa2, #d81b60, #8e24aa);
+    background-size: 300% 300%;
+    animation: cardColorShift 5s ease-in-out infinite;
     border: 3px solid #f8bbd0;
     overflow: hidden;
+  }
+  @keyframes cardColorShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
   .card-back::before {
     content: '';
@@ -585,13 +592,21 @@
   .card-back-pattern svg { width: 70%; height: 70%; opacity: 0.35; }
   .card-back-shimmer {
     position: absolute; inset: 0; border-radius: 11px;
-    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
-    background-size: 200% 100%;
-    animation: cardShimmer 3s ease-in-out infinite;
+    background: linear-gradient(
+      110deg,
+      transparent 25%,
+      rgba(255,255,255,0.08) 35%,
+      rgba(255,255,255,0.35) 50%,
+      rgba(255,255,255,0.08) 65%,
+      transparent 75%
+    );
+    background-size: 250% 100%;
+    animation: cardShimmer 2.5s ease-in-out infinite;
+    z-index: 1;
   }
   @keyframes cardShimmer {
-    0%, 100% { background-position: 200% 0; }
-    50% { background-position: -200% 0; }
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 
   /* ─── SVG Stars ──────────────────────────────────── */
@@ -729,7 +744,7 @@
 
 <!-- ═══ MENU SCREEN ═══ -->
 <div id="menuScreen" class="screen visible">
-  <h1 class="menu-title">Princess & Unicorn Memory</h1>
+  <h1 class="menu-title">Maya's Game</h1>
   <p class="menu-subtitle">Choose your adventure!</p>
   <div class="total-stars-bar" id="totalStars"></div>
   <div class="level-cards">
