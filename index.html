@@ -590,24 +590,7 @@
     display: flex; align-items: center; justify-content: center;
   }
   .card-back-pattern svg { width: 70%; height: 70%; opacity: 0.35; }
-  .card-back-shimmer {
-    position: absolute; inset: 0; border-radius: 11px;
-    background: linear-gradient(
-      110deg,
-      transparent 25%,
-      rgba(255,255,255,0.08) 35%,
-      rgba(255,255,255,0.35) 50%,
-      rgba(255,255,255,0.08) 65%,
-      transparent 75%
-    );
-    background-size: 250% 100%;
-    animation: cardShimmer 2.5s ease-in-out infinite;
-    z-index: 1;
-  }
-  @keyframes cardShimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
+  .card-back-shimmer { display: none; }
 
   /* ─── SVG Stars ──────────────────────────────────── */
   .svg-star { display: inline-block; vertical-align: middle; }
