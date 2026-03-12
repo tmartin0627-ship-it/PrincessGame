@@ -24,7 +24,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html {
-    touch-action: manipulation;
+    touch-action: none;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
   }
@@ -44,9 +44,9 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  button, .card { touch-action: manipulation; -webkit-touch-callout: none; cursor: pointer; }
+  button, .card { touch-action: none; -webkit-touch-callout: none; cursor: pointer; }
 
-  /* ─── Screens ─────────────────────────────────────────── */
+  /* âââ Screens âââââââââââââââââââââââââââââââââââââââââââ */
   .screen {
     width: 100%;
     display: flex;
@@ -67,7 +67,7 @@
     transform: translateY(0);
   }
 
-  /* ─── Menu Screen ─────────────────────────────────────── */
+  /* âââ Menu Screen âââââââââââââââââââââââââââââââââââââââ */
   .menu-title {
     font-size: clamp(1.6rem, 5vw, 2.6rem);
     font-weight: 800;
@@ -133,7 +133,7 @@
   .menu-settings-btn:hover { background: #f3e5f5; }
   .menu-settings-btn:active { transform: scale(0.95); }
 
-  /* ─── Game Screen ─────────────────────────────────────── */
+  /* âââ Game Screen âââââââââââââââââââââââââââââââââââââââ */
   .game-header {
     display: flex;
     align-items: center;
@@ -225,7 +225,7 @@
   .diff-btn.active .diff-stars .star-icon.earned { color: white; }
   .diff-btn.active .diff-stars .star-icon.empty { color: rgba(255,255,255,0.4); }
 
-  /* ─── HUD ─────────────────────────────────────────────── */
+  /* âââ HUD âââââââââââââââââââââââââââââââââââââââââââââââ */
   .game-hud {
     display: flex;
     align-items: center;
@@ -260,7 +260,7 @@
   }
   .hint-btn:disabled { opacity: 0.35; cursor: not-allowed; background: #eee; border-color: #ccc; color: #999; animation: none; }
 
-  /* ─── Grid & Cards ────────────────────────────────────── */
+  /* âââ Grid & Cards ââââââââââââââââââââââââââââââââââââââ */
   .grid {
     display: grid;
     gap: 10px;
@@ -361,7 +361,7 @@
     text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
   }
 
-  /* ─── Effects ─────────────────────────────────────────── */
+  /* âââ Effects âââââââââââââââââââââââââââââââââââââââââââ */
   .sparkle {
     position: absolute;
     pointer-events: none;
@@ -395,7 +395,7 @@
     100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
   }
 
-  /* ─── Win Overlay ─────────────────────────────────────── */
+  /* âââ Win Overlay âââââââââââââââââââââââââââââââââââââââ */
   .win-overlay {
     position: fixed;
     inset: 0;
@@ -466,7 +466,7 @@
     padding: 10px 32px;
   }
 
-  /* ─── Settings Panel ──────────────────────────────────── */
+  /* âââ Settings Panel ââââââââââââââââââââââââââââââââââââ */
   .settings-overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.25);
@@ -552,7 +552,7 @@
   .close-btn:hover { background: #f3e5f5; }
   .close-btn:active { transform: scale(0.95); }
 
-  /* ─── Floating Background ─────────────────────────── */
+  /* âââ Floating Background âââââââââââââââââââââââââââ */
   .bg-particles {
     position: fixed; inset: 0; z-index: 0;
     pointer-events: none; overflow: hidden;
@@ -570,7 +570,7 @@
   }
   .screen { position: relative; z-index: 1; }
 
-  /* ─── Shimmer Title ──────────────────────────────── */
+  /* âââ Shimmer Title ââââââââââââââââââââââââââââââââ */
   .menu-title {
     background: linear-gradient(90deg, #ad1457, #9c27b0, #e91e90, #ff6f61, #ffd54f, #e91e90, #9c27b0, #ad1457);
     background-size: 300% 100%;
@@ -584,7 +584,7 @@
     50% { background-position: 100% 50%; }
   }
 
-  /* ─── Card Back Pattern ──────────────────────────── */
+  /* âââ Card Back Pattern ââââââââââââââââââââââââââââ */
   .card-back-pattern {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
@@ -592,12 +592,12 @@
   .card-back-pattern svg { width: 70%; height: 70%; opacity: 0.35; }
   .card-back-shimmer { display: none; }
 
-  /* ─── SVG Stars ──────────────────────────────────── */
+  /* âââ SVG Stars ââââââââââââââââââââââââââââââââââââ */
   .svg-star { display: inline-block; vertical-align: middle; }
   .svg-star svg { width: 1em; height: 1em; vertical-align: -0.1em; }
   .star-rating .svg-star svg { width: 1em; height: 1em; }
 
-  /* ─── Match Burst ────────────────────────────────── */
+  /* âââ Match Burst ââââââââââââââââââââââââââââââââââ */
   .match-particle {
     position: absolute; pointer-events: none; z-index: 10;
     animation: burstOut 0.65s ease-out forwards;
@@ -611,7 +611,7 @@
     transition: box-shadow 0.4s ease;
   }
 
-  /* ─── Shooting Stars (win) ───────────────────────── */
+  /* âââ Shooting Stars (win) âââââââââââââââââââââââââ */
   .shooting-star {
     position: fixed; z-index: 302; pointer-events: none;
     width: 4px; height: 4px; background: var(--gold);
@@ -624,11 +624,11 @@
     100% { transform: translate(var(--sx, 400px), var(--sy, -300px)) scale(0.3); opacity: 0; }
   }
 
-  /* ─── SVG Icon Buttons ───────────────────────────── */
+  /* âââ SVG Icon Buttons âââââââââââââââââââââââââââââ */
   .back-btn svg, .gear-btn svg, .hint-btn svg { width: 1.1em; height: 1.1em; vertical-align: -0.15em; }
 
-  /* ─── Mobile Responsive ────────────────────────────── */
-  /* ─── Mobile Portrait ─────────────────────────────── */
+  /* âââ Mobile Responsive ââââââââââââââââââââââââââââââ */
+  /* âââ Mobile Portrait âââââââââââââââââââââââââââââââ */
   @media (max-width: 500px) {
     .difficulty { gap: 6px; }
     .diff-btn {
@@ -662,7 +662,7 @@
     .level-card { width: min(42vw, 180px); padding: 14px 10px 12px; }
   }
 
-  /* ─── Landscape (short viewport) ────────────────── */
+  /* âââ Landscape (short viewport) ââââââââââââââââââ */
   @media (max-height: 500px) {
     .menu-title { font-size: clamp(1.2rem, 3.5vw, 1.8rem); margin-bottom: 2px; }
     .menu-subtitle { font-size: 0.8rem; margin-bottom: 10px; }
@@ -697,7 +697,7 @@
     .win-btn { padding: 10px 28px; font-size: 0.95rem; }
   }
 
-  /* ─── Landscape + narrow (phone landscape) ──────── */
+  /* âââ Landscape + narrow (phone landscape) ââââââââ */
   @media (max-height: 500px) and (max-width: 900px) {
     .back-btn, .gear-btn { width: 38px; height: 38px; }
     .hint-btn { padding: 5px 12px; font-size: 0.78rem; }
@@ -722,10 +722,10 @@
 </head>
 <body>
 
-<!-- ═══ FLOATING BACKGROUND ═══ -->
+<!-- âââ FLOATING BACKGROUND âââ -->
 <div class="bg-particles" id="bgParticles"></div>
 
-<!-- ═══ MENU SCREEN ═══ -->
+<!-- âââ MENU SCREEN âââ -->
 <div id="menuScreen" class="screen visible">
   <h1 class="menu-title">Maya's Game</h1>
   <p class="menu-subtitle">Choose your adventure!</p>
@@ -750,7 +750,7 @@
   <button class="menu-settings-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16" style="vertical-align:-2px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Settings</button>
 </div>
 
-<!-- ═══ GAME SCREEN ═══ -->
+<!-- âââ GAME SCREEN âââ -->
 <div id="gameScreen" class="screen hidden">
   <div class="game-header">
     <button class="back-btn" onclick="showMenu()"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M13,4 L7,10 L13,16" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -769,7 +769,7 @@
   <div class="grid cols-3" id="grid"></div>
 </div>
 
-<!-- ═══ WIN OVERLAY ═══ -->
+<!-- âââ WIN OVERLAY âââ -->
 <div class="win-overlay" id="winOverlay">
   <div class="win-emoji"><svg viewBox="0 0 100 100" width="80" height="80"><defs><linearGradient id="crownG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><polygon points="30,55 35,25 42,42 50,18 58,42 65,25 70,55" fill="url(#crownG)" stroke="#e65100" stroke-width="1.5"/><rect x="30" y="55" width="40" height="8" rx="3" fill="url(#crownG)" stroke="#e65100" stroke-width="1"/><circle cx="50" cy="22" r="4" fill="#e91e63"/><circle cx="38" cy="30" r="3" fill="#7c4dff"/><circle cx="62" cy="30" r="3" fill="#00bcd4"/><polygon points="50,70 52,76 58,76 53,80 55,86 50,82 45,86 47,80 42,76 48,76" fill="#ffd54f"><animateTransform attributeName="transform" type="rotate" values="0 50 78;15 50 78;-15 50 78;0 50 78" dur="2s" repeatCount="indefinite"/></polygon><circle cx="25" cy="30" r="2.5" fill="#e91e63" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="75" cy="35" r="2" fill="#ffd54f" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite"/></circle><circle cx="20" cy="50" r="1.5" fill="#ce93d8" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.3s" repeatCount="indefinite"/></circle><circle cx="80" cy="48" r="2" fill="#42a5f5" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.6s" repeatCount="indefinite"/></circle><polygon points="22,18 23,21 26,21 23.5,23 24.5,26 22,24 19.5,26 20.5,23 18,21 21,21" fill="#ffd54f" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite"/></polygon><polygon points="78,20 79,23 82,23 79.5,25 80.5,28 78,26 75.5,28 76.5,25 74,23 77,23" fill="#f48fb1" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.7s" repeatCount="indefinite"/></polygon></svg></div>
   <div class="win-text" id="winText">You did it!</div>
@@ -779,7 +779,7 @@
   <button class="win-btn secondary" onclick="showMenu()">Menu</button>
 </div>
 
-<!-- ═══ SETTINGS ═══ -->
+<!-- âââ SETTINGS âââ -->
 <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
 <div class="settings-panel" id="settingsPanel">
   <h3><svg viewBox="0 0 20 20" width="18" height="18" style="vertical-align:-3px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="var(--pink-dark)" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="var(--pink-dark)" stroke-width="1.8" stroke-linecap="round"/></svg> Settings</h3>
@@ -797,9 +797,9 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // DATA
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const characters = [
   {
     name: "Princess",
@@ -1040,9 +1040,9 @@ const difficultyConfig = {
 
 const levelNames = { 1: 'Pictures', 2: 'Words', 3: 'Numbers' };
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // SOUND ENGINE (Web Audio API)
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const Sound = {
   ctx: null,
   enabled: true,
@@ -1073,9 +1073,9 @@ const Sound = {
   deal(i, n)  { this.play(400 + (i/n)*400, 'sine', 0.05, 0.06); }
 };
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // STORAGE (localStorage)
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const Storage = {
   KEY: 'princess-memory-v1',
   SKEY: 'princess-memory-settings',
@@ -1088,15 +1088,15 @@ const Storage = {
   },
   bestForLevel(lvl) { return Math.max(this.getStars(lvl,'easy'), this.getStars(lvl,'medium'), this.getStars(lvl,'hard')); },
   totalStars() { return Object.values(this.getProgress()).reduce((s,v) => s + (v.stars||0), 0); },
-  maxStars() { return 27; }, // 3 levels × 3 difficulties × 3 stars
+  maxStars() { return 27; }, // 3 levels Ã 3 difficulties Ã 3 stars
   getSettings() { try { return JSON.parse(localStorage.getItem(this.SKEY)) || { sound: true }; } catch { return { sound: true }; } },
   saveSettings(s) { localStorage.setItem(this.SKEY, JSON.stringify(s)); },
   reset() { localStorage.removeItem(this.KEY); }
 };
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // GAME STATE
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let currentLevel = 1;
 let currentDifficulty = 'easy';
 let cards = [];
@@ -1107,9 +1107,9 @@ let locked = false;
 let moveCount = 0;
 let hintsRemaining = 3;
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // HELPERS
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -1119,9 +1119,9 @@ function shuffle(arr) {
 }
 
 function calcStars(moves, pairs) {
-  // 3★ = near-perfect memory (at most 2 mistakes)
-  // 2★ = good (roughly 50% extra moves)
-  // 1★ = completed
+  // 3â = near-perfect memory (at most 2 mistakes)
+  // 2â = good (roughly 50% extra moves)
+  // 1â = completed
   const perfect = pairs;  // perfect = every flip is a match
   if (moves <= perfect + 2) return 3;
   if (moves <= Math.ceil(perfect * 1.5) + 2) return 2;
@@ -1141,9 +1141,9 @@ function renderStars(count, size) {
   return h;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // SCREEN NAVIGATION
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function showMenu() {
   Sound.init(); Sound.click();
   document.getElementById('menuScreen').classList.replace('hidden','visible');
@@ -1180,9 +1180,9 @@ function updateDifficultyStars() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // SETTINGS
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function openSettings() { Sound.click(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
 function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); document.getElementById('settingsOverlay').classList.remove('open'); }
 function toggleSound() { Sound.enabled = document.getElementById('soundToggle').checked; Storage.saveSettings({ sound: Sound.enabled }); if (Sound.enabled) Sound.click(); }
@@ -1198,9 +1198,9 @@ function loadSettings() {
   document.getElementById('soundToggle').checked = s.sound;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // DIFFICULTY
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function setDifficulty(d) {
   Sound.init(); Sound.click();
   currentDifficulty = d;
@@ -1208,9 +1208,9 @@ function setDifficulty(d) {
   startGame();
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // EFFECTS
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function createSparkles(card) {
   const colors = ['#ffd54f','#f48fb1','#ce93d8','#80deea','#c5e1a5'];
   // Burst particles radiating outward
@@ -1268,9 +1268,9 @@ function launchConfetti() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // HINT
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function useHint() {
   if (hintsRemaining <= 0 || locked) return;
   Sound.init(); Sound.hint();
@@ -1294,9 +1294,9 @@ function updateHintBtn() {
   btn.disabled = hintsRemaining <= 0;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // CARD FLIP
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function flipCard(index) {
   if (locked) return;
   Sound.init();
@@ -1351,9 +1351,9 @@ function flipCard(index) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // WIN SCREEN
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function showWin(stars) {
   const overlay = document.getElementById('winOverlay');
   overlay.classList.add('show');
@@ -1378,9 +1378,9 @@ function showWin(stars) {
   updateDifficultyStars();
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // START GAME
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function startGame() {
   Sound.init();
   const config = difficultyConfig[currentLevel][currentDifficulty];
@@ -1455,9 +1455,9 @@ function startGame() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // FLOATING BACKGROUND
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function initBgParticles() {
   const container = document.getElementById('bgParticles');
   const shapes = [
@@ -1483,15 +1483,20 @@ function initBgParticles() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // INIT
-// ═══════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function setVH() { document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px'); }
 window.addEventListener('resize', setVH);
 setVH();
 loadSettings();
 updateMenuStars();
 initBgParticles();
+
+// Prevent single-finger scrolling (kids accidentally scroll when tapping cards)
+document.addEventListener('touchmove', function(e) {
+  if (e.touches.length === 1) e.preventDefault();
+}, { passive: false });
 </script>
 </body>
 </html>
