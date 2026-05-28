@@ -374,6 +374,7 @@
     padding: 8px;
   }
   .card-front svg { width: 100%; height: 100%; }
+  .card-emoji { font-size: clamp(3rem,10vw,5rem); display:flex; align-items:center; justify-content:center; width:100%; flex:1; line-height:1; }
   .card-label {
     position: absolute;
     bottom: 5px;
@@ -1525,178 +1526,18 @@ sports: {
   cardBack: `<svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="6" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/><line x1="14" y1="20" x2="26" y2="20" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/><line x1="20" y1="14" x2="20" y2="26" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/><circle cx="44" cy="35" r="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/><polygon points="12,55 13,59 17,59 14,62 15,66 12,63 9,66 10,62 7,59 11,59" fill="rgba(255,255,255,0.22)"/><polygon points="46,58 47,62 51,62 48,65 49,69 46,66 43,69 44,65 41,62 45,62" fill="rgba(255,255,255,0.18)"/><path d="M28,70 Q32,64 36,68 Q40,72 44,68" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="36" r="3.5" fill="rgba(255,255,255,0.15)"/><circle cx="50" cy="18" r="3" fill="rgba(255,255,255,0.15)"/></svg>`,
   cardBackGradient: 'linear-gradient(145deg, #1565c0, #0d47a1, #42a5f5)',
   characters: [
-  {
-    name: "Football",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="106" rx="32" ry="7" fill="#66bb6a" opacity="0.35"/>
-      <circle cx="50" cy="52" r="34" fill="white" stroke="#263238" stroke-width="3"/>
-      <polygon points="50,22 58,30 55,40 45,40 42,30" fill="#263238"/>
-      <polygon points="19,44 28,38 36,46 34,56 22,56" fill="#263238"/>
-      <polygon points="81,44 72,38 64,46 66,56 78,56" fill="#263238"/>
-      <polygon points="28,67 38,64 44,74 40,82 28,76" fill="#263238"/>
-      <polygon points="72,67 62,64 56,74 60,82 72,76" fill="#263238"/>
-    </svg>`
-  },
-  {
-    name: "Basketball",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="52" r="34" fill="#e65100"/>
-      <circle cx="50" cy="52" r="34" fill="none" stroke="#263238" stroke-width="3"/>
-      <line x1="50" y1="18" x2="50" y2="86" stroke="#263238" stroke-width="3"/>
-      <line x1="16" y1="52" x2="84" y2="52" stroke="#263238" stroke-width="3"/>
-      <path d="M26 22 Q10 36 10 52 Q10 68 26 82" fill="none" stroke="#263238" stroke-width="3"/>
-      <path d="M74 22 Q90 36 90 52 Q90 68 74 82" fill="none" stroke="#263238" stroke-width="3"/>
-      <ellipse cx="50" cy="106" rx="32" ry="7" fill="#ff8a65" opacity="0.35"/>
-    </svg>`
-  },
-  {
-    name: "Tennis",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="44" cy="42" rx="30" ry="32" fill="#e8f5e9" stroke="#2e7d32" stroke-width="3.5"/>
-      <line x1="14" y1="42" x2="74" y2="42" stroke="#388e3c" stroke-width="2.5"/>
-      <line x1="44" y1="10" x2="44" y2="74" stroke="#388e3c" stroke-width="2.5"/>
-      <line x1="16" y1="26" x2="72" y2="26" stroke="#66bb6a" stroke-width="1.5"/>
-      <line x1="16" y1="58" x2="72" y2="58" stroke="#66bb6a" stroke-width="1.5"/>
-      <line x1="26" y1="12" x2="26" y2="72" stroke="#66bb6a" stroke-width="1.5"/>
-      <line x1="62" y1="12" x2="62" y2="72" stroke="#66bb6a" stroke-width="1.5"/>
-      <rect x="57" y="69" width="12" height="38" rx="6" fill="#6d4c41" transform="rotate(12 63 88)"/>
-      <circle cx="82" cy="108" r="11" fill="#cddc39"/>
-      <path d="M74 104 Q82 97 90 104" fill="none" stroke="#9e9d24" stroke-width="2" stroke-linecap="round"/>
-    </svg>`
-  },
-  {
-    name: "Skateboard",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="108" rx="30" ry="6" fill="#ff7043" opacity="0.3"/>
-      <rect x="12" y="52" width="76" height="20" rx="10" fill="#e53935" stroke="#b71c1c" stroke-width="2.5"/>
-      <rect x="12" y="58" width="76" height="5" rx="2" fill="#ffd54f"/>
-      <rect x="12" y="66" width="76" height="5" rx="2" fill="#1565c0"/>
-      <rect x="18" y="71" width="22" height="7" rx="3.5" fill="#9e9e9e" stroke="#757575" stroke-width="1.5"/>
-      <rect x="60" y="71" width="22" height="7" rx="3.5" fill="#9e9e9e" stroke="#757575" stroke-width="1.5"/>
-      <circle cx="24" cy="86" r="10" fill="#212121"/>
-      <circle cx="24" cy="86" r="5" fill="#757575"/>
-      <circle cx="38" cy="86" r="10" fill="#212121"/>
-      <circle cx="38" cy="86" r="5" fill="#757575"/>
-      <circle cx="62" cy="86" r="10" fill="#212121"/>
-      <circle cx="62" cy="86" r="5" fill="#757575"/>
-      <circle cx="76" cy="86" r="10" fill="#212121"/>
-      <circle cx="76" cy="86" r="5" fill="#757575"/>
-    </svg>`
-  },
-  {
-    name: "Bicycle",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="22" cy="80" r="18" fill="none" stroke="#1565c0" stroke-width="5"/>
-      <circle cx="22" cy="80" r="3" fill="#1565c0"/>
-      <circle cx="76" cy="80" r="18" fill="none" stroke="#1565c0" stroke-width="5"/>
-      <circle cx="76" cy="80" r="3" fill="#1565c0"/>
-      <polyline points="22,80 36,50 68,50 76,80 50,80 36,50" stroke="#e53935" stroke-width="4.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-      <line x1="68" y1="50" x2="50" y2="80" stroke="#e53935" stroke-width="4.5" stroke-linecap="round"/>
-      <line x1="36" y1="50" x2="36" y2="40" stroke="#795548" stroke-width="4" stroke-linecap="round"/>
-      <line x1="26" y1="39" x2="46" y2="39" stroke="#795548" stroke-width="5" stroke-linecap="round"/>
-      <line x1="68" y1="50" x2="68" y2="40" stroke="#795548" stroke-width="4" stroke-linecap="round"/>
-      <line x1="60" y1="38" x2="76" y2="38" stroke="#795548" stroke-width="5" stroke-linecap="round"/>
-    </svg>`
-  },
-  {
-    name: "Trophy",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <path d="M28 16 Q22 25 20 37 Q18 50 28 58 Q36 65 50 67 Q64 65 72 58 Q82 50 80 37 Q78 25 72 16Z" fill="#ffd54f" stroke="#f9a825" stroke-width="2"/>
-      <path d="M20 26 Q8 28 6 40 Q4 52 18 56" fill="none" stroke="#f9a825" stroke-width="7" stroke-linecap="round"/>
-      <path d="M80 26 Q92 28 94 40 Q96 52 82 56" fill="none" stroke="#f9a825" stroke-width="7" stroke-linecap="round"/>
-      <rect x="40" y="67" width="20" height="20" rx="2" fill="#ffc107"/>
-      <rect x="28" y="85" width="44" height="10" rx="5" fill="#f9a825"/>
-      <rect x="30" y="93" width="40" height="16" rx="3" fill="#ffd54f"/>
-      <polygon points="50,28 53,38 63,38 56,45 58,55 50,49 42,55 44,45 37,38 47,38" fill="#f9a825" stroke="#e65100" stroke-width="1"/>
-    </svg>`
-  },
-  {
-    name: "Swimming",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="76" cy="24" r="10" fill="#ffe0b2"/>
-      <path d="M68 20 Q76 14 84 20" fill="#e91e63"/>
-      <line x1="68" y1="26" x2="86" y2="26" stroke="#1565c0" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="14" y1="44" x2="76" y2="44" stroke="#ffe0b2" stroke-width="10" stroke-linecap="round"/>
-      <line x1="76" y1="34" x2="92" y2="42" stroke="#ffe0b2" stroke-width="6" stroke-linecap="round"/>
-      <line x1="14" y1="44" x2="8" y2="34" stroke="#ffe0b2" stroke-width="6" stroke-linecap="round"/>
-      <line x1="36" y1="44" x2="28" y2="58" stroke="#1565c0" stroke-width="6" stroke-linecap="round"/>
-      <line x1="48" y1="44" x2="54" y2="58" stroke="#1565c0" stroke-width="6" stroke-linecap="round"/>
-      <path d="M6 76 Q18 68 30 76 Q42 84 54 76 Q66 68 78 76 Q90 84 98 76" fill="none" stroke="#1565c0" stroke-width="4.5" stroke-linecap="round"/>
-      <path d="M6 90 Q18 82 30 90 Q42 98 54 90 Q66 82 78 90 Q90 98 98 90" fill="none" stroke="#42a5f5" stroke-width="4" stroke-linecap="round"/>
-      <path d="M6 104 Q18 96 30 104 Q42 112 54 104 Q66 96 78 104 Q90 112 98 104" fill="none" stroke="#90caf9" stroke-width="3.5" stroke-linecap="round"/>
-    </svg>`
-  },
-  {
-    name: "Ballerina",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="115" rx="24" ry="5" fill="#e91e63" opacity="0.2"/>
-      <circle cx="50" cy="7" r="6" fill="#5d4037"/>
-      <circle cx="50" cy="15" r="10" fill="#ffe0b2"/>
-      <rect x="44" y="24" width="12" height="20" rx="5" fill="#e91e63"/>
-      <ellipse cx="50" cy="48" rx="24" ry="11" fill="#f48fb1"/>
-      <ellipse cx="50" cy="50" rx="20" ry="9" fill="#fce4ec"/>
-      <line x1="44" y1="30" x2="22" y2="22" stroke="#ffe0b2" stroke-width="5" stroke-linecap="round"/>
-      <line x1="56" y1="30" x2="78" y2="22" stroke="#ffe0b2" stroke-width="5" stroke-linecap="round"/>
-      <line x1="48" y1="58" x2="44" y2="85" stroke="#ffe0b2" stroke-width="5" stroke-linecap="round"/>
-      <line x1="52" y1="58" x2="56" y2="85" stroke="#ffe0b2" stroke-width="5" stroke-linecap="round"/>
-      <ellipse cx="43" cy="87" rx="7" ry="3.5" fill="#f48fb1" transform="rotate(-10 43 87)"/>
-      <ellipse cx="57" cy="87" rx="7" ry="3.5" fill="#f48fb1" transform="rotate(10 57 87)"/>
-    </svg>`
-  },
-  {
-    name: "Golf",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="110" rx="44" ry="8" fill="#66bb6a" opacity="0.6"/>
-      <path d="M26 88 Q50 82 74 88 Q72 102 50 106 Q28 102 26 88Z" fill="#66bb6a"/>
-      <circle cx="50" cy="98" r="5" fill="#4caf50" stroke="#2e7d32" stroke-width="1.5"/>
-      <rect x="50" y="14" width="4" height="74" rx="2" fill="#795548"/>
-      <line x1="54" y1="14" x2="54" y2="38" stroke="#f44336" stroke-width="3.5" stroke-linecap="round"/>
-      <polygon points="54,14 70,22 54,30" fill="#f44336"/>
-      <circle cx="82" cy="52" r="12" fill="white" stroke="#bdbdbd" stroke-width="2"/>
-      <circle cx="78" cy="48" r="2.5" fill="#e0e0e0"/>
-      <circle cx="85" cy="46" r="2" fill="#e0e0e0"/>
-      <circle cx="87" cy="54" r="2" fill="#e0e0e0"/>
-      <circle cx="80" cy="57" r="2.5" fill="#e0e0e0"/>
-    </svg>`
-  },
-  {
-    name: "Medal",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <rect x="38" y="8" width="10" height="36" rx="5" fill="#1565c0" transform="rotate(-10 43 26)"/>
-      <rect x="52" y="8" width="10" height="36" rx="5" fill="#42a5f5" transform="rotate(10 57 26)"/>
-      <circle cx="50" cy="76" r="36" fill="#ffd54f" stroke="#f9a825" stroke-width="2.5"/>
-      <circle cx="50" cy="76" r="29" fill="#ffca28"/>
-      <circle cx="50" cy="76" r="22" fill="#ffd54f"/>
-      <polygon points="50,58 53,67 62,67 56,73 58,82 50,77 42,82 44,73 38,67 47,67" fill="#f9a825" stroke="#e65100" stroke-width="1"/>
-      <text x="44" y="100" font-size="9" fill="#e65100" font-weight="bold" font-family="Arial,sans-serif">GOLD</text>
-    </svg>`
-  },
-  {
-    name: "Volleyball",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="106" rx="32" ry="7" fill="#bdbdbd" opacity="0.3"/>
-      <circle cx="50" cy="52" r="34" fill="white" stroke="#263238" stroke-width="2.5"/>
-      <path d="M16 48 Q32 62 50 62 Q68 62 84 48" fill="none" stroke="#1565c0" stroke-width="5" stroke-linecap="round"/>
-      <path d="M32 20 Q42 40 44 62 Q44 76 38 84" fill="none" stroke="#e53935" stroke-width="5" stroke-linecap="round"/>
-      <path d="M68 20 Q58 40 56 62 Q56 76 62 84" fill="none" stroke="#fdd835" stroke-width="5" stroke-linecap="round"/>
-    </svg>`
-  },
-  {
-    name: "Running",
-    svg: `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="52" cy="115" rx="22" ry="5" fill="#66bb6a" opacity="0.35"/>
-      <circle cx="60" cy="16" r="10" fill="#ffe0b2" stroke="#e65100" stroke-width="2"/>
-      <line x1="56" y1="26" x2="48" y2="56" stroke="#e53935" stroke-width="7" stroke-linecap="round"/>
-      <line x1="54" y1="36" x2="74" y2="50" stroke="#ffe0b2" stroke-width="6" stroke-linecap="round"/>
-      <line x1="52" y1="34" x2="32" y2="26" stroke="#ffe0b2" stroke-width="6" stroke-linecap="round"/>
-      <line x1="48" y1="56" x2="32" y2="82" stroke="#1565c0" stroke-width="7" stroke-linecap="round"/>
-      <line x1="32" y1="82" x2="20" y2="108" stroke="#1565c0" stroke-width="6" stroke-linecap="round"/>
-      <line x1="48" y1="56" x2="64" y2="74" stroke="#1565c0" stroke-width="7" stroke-linecap="round"/>
-      <line x1="64" y1="74" x2="80" y2="64" stroke="#1565c0" stroke-width="6" stroke-linecap="round"/>
-      <ellipse cx="19" cy="110" rx="9" ry="4" fill="#e53935"/>
-      <ellipse cx="82" cy="63" rx="6" ry="3" fill="#e53935" transform="rotate(-20 82 63)"/>
-    </svg>`
-  }
+  { name: "Football",   emoji: "⚽" },
+  { name: "Basketball", emoji: "🏀" },
+  { name: "Tennis",     emoji: "🎾" },
+  { name: "Skateboard", emoji: "🛹" },
+  { name: "Bicycle",    emoji: "🚲" },
+  { name: "Trophy",     emoji: "🏆" },
+  { name: "Swimming",   emoji: "🏊" },
+  { name: "Ballerina",  emoji: "🩰" },
+  { name: "Golf",       emoji: "⛳" },
+  { name: "Medal",      emoji: "🥇" },
+  { name: "Volleyball", emoji: "🏐" },
+  { name: "Running",    emoji: "🏃" }
 ]
 }
 };
@@ -1948,6 +1789,7 @@ function renderThemePicker() {
     btn.className = `theme-option${isActive ? ' active' : ''}`;
     btn.onclick = () => selectTheme(key);
     const previews = theme.characters.slice(0, 3).map(c => {
+      if (c.emoji) return `<span class="theme-preview-card" style="font-size:18px;line-height:26px;display:inline-flex;align-items:center;justify-content:center">${c.emoji}</span>`;
       const miniSvg = c.svg.replace('viewBox="0 0 100 120"', 'viewBox="0 0 100 120" width="22" height="26"');
       return `<span class="theme-preview-card">${miniSvg}</span>`;
     }).join('');
@@ -2231,7 +2073,7 @@ function startGame() {
         <text x="28" y="95" font-size="14" fill="#e65100" font-weight="bold" font-family="Arial,sans-serif">FREE!</text>
       </svg>`;
     } else if (currentLevel === 1) {
-      front = `${item.content.svg}<div class="card-label">${item.content.name}</div>`;
+      front = `${item.content.emoji ? `<div class="card-emoji">${item.content.emoji}</div>` : item.content.svg}<div class="card-label">${item.content.name}</div>`;
     } else {
       const w = item.content;
       const fs = w.name.length <= 2 ? 'clamp(1.8rem,5vw,2.6rem)' :
