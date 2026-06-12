@@ -190,7 +190,7 @@
     flex-wrap: wrap;
     justify-content: center;
     position: sticky;
-    top: 52px;
+    top: calc(env(safe-area-inset-top, 0px) + var(--header-h, 52px));
     z-index: 9;
     padding: 6px 0;
     background: linear-gradient(135deg, rgba(252,228,236,0.92), rgba(243,229,245,0.92));
@@ -236,7 +236,7 @@
     padding: 6px 4px;
     margin-bottom: 10px;
     position: sticky;
-    top: 104px;
+    top: calc(env(safe-area-inset-top, 0px) + var(--header-h, 52px) + var(--diff-h, 52px));
     z-index: 8;
     background: linear-gradient(135deg, rgba(252,228,236,0.92), rgba(243,229,245,0.92));
     backdrop-filter: blur(8px);
@@ -517,6 +517,10 @@
     transition: opacity 0.3s, transform 0.3s;
     min-width: 260px;
     max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    max-height: calc(var(--vh, 1vh) * 100 - 32px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     text-align: center;
   }
   .settings-panel.open {
@@ -1620,7 +1624,11 @@ const Sound = {
   ctx: null,
   enabled: true,
   init() {
-    if (this.ctx) return;
+    if (this.ctx) {
+      // iOS suspends the context when the tab is backgrounded or screen locks
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      return;
+    }
     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
   },
   play(freq, type, dur, vol = 0.2, delay = 0) {
@@ -1732,6 +1740,7 @@ function selectLevel(lvl) {
   document.getElementById('gameScreen').classList.replace('hidden','visible');
   document.getElementById('gameTitle').textContent = levelNames[lvl];
   updateDifficultyStars();
+  updateStickyOffsets();
   startGame();
 }
 
@@ -2149,14 +2158,50 @@ function initBgParticles() {
 // INIT
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 function setVH() { document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px'); }
-window.addEventListener('resize', setVH);
+function updateStickyOffsets() {
+  const header = document.querySelector('.game-header');
+  const diff = document.getElementById('difficultyBar');
+  if (!header || !diff || !header.offsetHeight) return;
+  document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+  document.documentElement.style.setProperty('--diff-h', diff.offsetHeight + 'px');
+}
+window.addEventListener('resize', () => { setVH(); updateStickyOffsets(); });
 setVH();
+
+// Newer emoji (🩰 ballet shoes, 🛹 skateboard) show as empty boxes on older
+// devices. Detect by checking for any colored pixel — tofu boxes render
+// monochrome — and swap in older, widely supported emoji.
+function emojiRenders(emoji) {
+  try {
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 24;
+    const ctx = cv.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '20px sans-serif';
+    ctx.fillText(emoji, 0, 0);
+    const d = ctx.getImageData(0, 0, 24, 24).data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i+3] > 0 && (d[i] !== d[i+1] || d[i+1] !== d[i+2])) return true;
+    }
+    return false;
+  } catch (e) { return true; }
+}
+(function applyEmojiFallbacks() {
+  const fallbacks = { '🩰': { emoji: '💃', name: 'Dancing' }, '🛹': { emoji: '🛴', name: 'Scooter' } };
+  themes.sports.characters.forEach(c => {
+    const fb = fallbacks[c.emoji];
+    if (fb && !emojiRenders(c.emoji)) { c.emoji = fb.emoji; c.name = fb.name; }
+  });
+})();
+
 loadSettings();
 updateMenuStars();
 initBgParticles();
 
-// Disable all touch scrolling (kids accidentally scroll when tapping cards)
+// Disable all touch scrolling (kids accidentally scroll when tapping cards),
+// but keep the settings panel scrollable when it's taller than the screen
 document.addEventListener('touchmove', function(e) {
+  if (e.target.closest && e.target.closest('.settings-panel')) return;
   e.preventDefault();
 }, { passive: false });
 
