@@ -630,6 +630,12 @@
   .theme-previews { display: flex; gap: 2px; }
   .theme-preview-card { width: 22px; height: 26px; display: inline-block; }
   .theme-preview-card svg { width: 100%; height: 100%; }
+  .deck-swatch {
+    width: 34px; height: 42px;
+    border-radius: 8px;
+    border: 3px solid #f8bbd0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
 
   /* ‚îÄ‚îÄ‚îÄ Floating Background ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ */
   .bg-particles {
@@ -878,8 +884,14 @@
       <span class="toggle-slider"></span>
     </label>
   </div>
-  <div class="setting-section-label">Pictures Theme</div>
-  <div class="theme-picker" id="themePicker"></div>
+  <div id="themeSection">
+    <div class="setting-section-label">Pictures Theme</div>
+    <div class="theme-picker" id="themePicker"></div>
+  </div>
+  <div id="colorSection">
+    <div class="setting-section-label" id="colorSectionLabel">Card Colour</div>
+    <div class="theme-picker" id="colorPicker"></div>
+  </div>
   <div class="settings-btn-row">
     <button class="reset-btn" onclick="resetProgress()">Reset Progress</button>
     <button class="close-btn" onclick="closeSettings()">Close</button>
@@ -899,7 +911,7 @@ function getCharacters() {
 const themes = {
 princess: {
   name: 'Princess',
-  icon: 'üëë',
+  icon: '👑',
   cardBack: `<svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><polygon points="30,8 33,16 41,16 35,21 37,29 30,25 23,29 25,21 19,16 27,16" fill="rgba(255,255,255,0.5)"/><polygon points="30,2 32,6 36,6 33,9 34,13 30,10 26,13 27,9 24,6 28,6" fill="rgba(255,213,79,0.6)"/><polygon points="15,35 17,39 21,39 18,42 19,46 15,43 11,46 12,42 9,39 13,39" fill="rgba(255,255,255,0.3)"/><polygon points="45,35 47,39 51,39 48,42 49,46 45,43 41,46 42,42 39,39 43,39" fill="rgba(255,255,255,0.3)"/><path d="M20,60 L24,52 L27,56 L30,48 L33,56 L36,52 L40,60Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,213,79,0.4)" stroke-width="0.8"/><circle cx="15" cy="20" r="2" fill="rgba(255,255,255,0.25)"/><circle cx="45" cy="22" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="12" cy="55" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="48" cy="58" r="2" fill="rgba(255,255,255,0.2)"/><path d="M22,68 Q30,72 38,68" fill="rgba(255,213,79,0.2)" stroke="rgba(255,213,79,0.3)" stroke-width="0.8"/></svg>`,
   cardBackGradient: 'linear-gradient(145deg, #e91e90, #9c27b0, #e91e63)',
   characters: [
@@ -919,7 +931,7 @@ princess: {
 },
 animals: {
   name: 'Animals',
-  icon: 'üêæ',
+  icon: '🐾',
   cardBack: `<svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="18" r="5" fill="rgba(255,255,255,0.35)"/><circle cx="25" cy="12" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="35" cy="12" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="22" cy="16" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="38" cy="16" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="15" cy="45" r="5" fill="rgba(255,255,255,0.25)"/><circle cx="10" cy="39" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="20" cy="39" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="7" cy="43" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="23" cy="43" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="45" cy="55" r="5" fill="rgba(255,255,255,0.25)"/><circle cx="40" cy="49" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="50" cy="49" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="37" cy="53" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="53" cy="53" r="2.5" fill="rgba(255,255,255,0.2)"/><path d="M18,65 Q22,60 26,62 Q30,64 34,60 Q38,64 42,62" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/></svg>`,
   cardBackGradient: 'linear-gradient(145deg, #43a047, #2e7d32, #1b5e20)',
   characters: [
@@ -1030,12 +1042,26 @@ const difficultyConfig = {
 
 const levelNames = { 1: 'Pictures', 2: 'Words', 3: 'Numbers', 4: 'Letters' };
 
-// Deck (card-back) colours per non-picture level so each game type looks distinct
-const levelDeckColors = {
-  2: { gradient: 'linear-gradient(145deg, #8e24aa, #6a1b9a, #ab47bc)', border: '#ce93d8' }, // Words / Names – purple
-  3: { gradient: 'linear-gradient(145deg, #00897b, #00695c, #26a69a)', border: '#80cbc4' }, // Numbers – teal
-  4: { gradient: 'linear-gradient(145deg, #fb8c00, #ef6c00, #ffa726)', border: '#ffcc80' }  // Letters – orange
+// Selectable card-back (deck) colours for the Words / Numbers / Letters games.
+// Each game uses one colour at a time and the player can switch it from Settings,
+// just like the Pictures game switches colour via its themes.
+const deckPalette = {
+  pink:   { name: 'Pink',   gradient: 'linear-gradient(145deg, #e91e90, #9c27b0, #e91e63)', border: '#f8bbd0' },
+  purple: { name: 'Purple', gradient: 'linear-gradient(145deg, #8e24aa, #6a1b9a, #ab47bc)', border: '#ce93d8' },
+  teal:   { name: 'Teal',   gradient: 'linear-gradient(145deg, #00897b, #00695c, #26a69a)', border: '#80cbc4' },
+  orange: { name: 'Orange', gradient: 'linear-gradient(145deg, #fb8c00, #ef6c00, #ffa726)', border: '#ffcc80' },
+  blue:   { name: 'Blue',   gradient: 'linear-gradient(145deg, #1e88e5, #1565c0, #42a5f5)', border: '#90caf9' },
+  green:  { name: 'Green',  gradient: 'linear-gradient(145deg, #43a047, #2e7d32, #66bb6a)', border: '#a5d6a7' }
 };
+
+// Default deck colour per non-picture level (distinct, but player-switchable)
+const defaultDeckColors = { 2: 'purple', 3: 'teal', 4: 'orange' };
+let deckColors = { ...defaultDeckColors };
+
+function getLevelDeck(level) {
+  const key = deckColors[level] || defaultDeckColors[level];
+  return deckPalette[key] || null;
+}
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // SOUND ENGINE (Web Audio API)
@@ -1185,7 +1211,7 @@ function updateDifficultyStars() {
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // SETTINGS
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
-function openSettings() { Sound.click(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
+function openSettings() { Sound.click(); updateSettingsSections(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
 function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); document.getElementById('settingsOverlay').classList.remove('open'); }
 function toggleSound() {
   Sound.enabled = document.getElementById('soundToggle').checked;
@@ -1205,6 +1231,7 @@ function loadSettings() {
   Sound.enabled = s.sound;
   document.getElementById('soundToggle').checked = s.sound;
   currentTheme = s.theme || 'princess';
+  deckColors = { ...defaultDeckColors, ...(s.deckColors || {}) };
   renderThemePicker();
 }
 
@@ -1235,6 +1262,59 @@ function selectTheme(key) {
   s.theme = key;
   Storage.saveSettings(s);
   renderThemePicker();
+}
+
+// Show the picker relevant to the current game: themes for Pictures, a card-back
+// colour palette for the Words / Numbers / Letters games.
+function updateSettingsSections() {
+  const themeSection = document.getElementById('themeSection');
+  const colorSection = document.getElementById('colorSection');
+  if (!themeSection || !colorSection) return;
+  const isPictures = currentLevel === 1;
+  themeSection.style.display = isPictures ? '' : 'none';
+  colorSection.style.display = isPictures ? 'none' : '';
+  if (isPictures) {
+    renderThemePicker();
+  } else {
+    document.getElementById('colorSectionLabel').textContent = `${levelNames[currentLevel]} Colour`;
+    renderColorPicker();
+  }
+}
+
+function renderColorPicker() {
+  const picker = document.getElementById('colorPicker');
+  if (!picker) return;
+  const selected = deckColors[currentLevel] || defaultDeckColors[currentLevel];
+  picker.innerHTML = '';
+  Object.entries(deckPalette).forEach(([key, c]) => {
+    const isActive = key === selected;
+    const btn = document.createElement('button');
+    btn.className = `theme-option${isActive ? ' active' : ''}`;
+    btn.onclick = () => selectDeckColor(key);
+    btn.innerHTML = `<span class="deck-swatch" style="background:${c.gradient};border-color:${c.border}"></span><span class="theme-name">${c.name}</span>`;
+    picker.appendChild(btn);
+  });
+}
+
+function selectDeckColor(key) {
+  Sound.click();
+  deckColors[currentLevel] = key;
+  const s = Storage.getSettings();
+  s.deckColors = deckColors;
+  Storage.saveSettings(s);
+  renderColorPicker();
+  applyDeckColorToBoard();
+}
+
+// Recolour the backs of any cards currently on the board (live preview)
+function applyDeckColorToBoard() {
+  if (currentLevel === 1) return;
+  const deck = getLevelDeck(currentLevel);
+  if (!deck) return;
+  document.querySelectorAll('#grid .card-back').forEach(el => {
+    el.style.setProperty('--card-bg', deck.gradient);
+    el.style.setProperty('--card-border', deck.border);
+  });
 }
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
@@ -1516,7 +1596,7 @@ function startGame() {
     const theme = themes[currentTheme] || themes.princess;
     const isThemed = currentLevel === 1;
     const cardBackPattern = isThemed ? theme.cardBack : themes.princess.cardBack;
-    const levelDeck = levelDeckColors[currentLevel];
+    const levelDeck = getLevelDeck(currentLevel);
     const cardGradient = isThemed ? theme.cardBackGradient : (levelDeck ? levelDeck.gradient : '');
     const cardBorder = isThemed ? (currentTheme === 'animals' ? '#81c784' : currentTheme === 'sports' ? '#42a5f5' : '') : (levelDeck ? levelDeck.border : '');
     const cardStyle = (cardGradient || cardBorder) ? `style="${cardGradient ? '--card-bg:' + cardGradient + ';' : ''}${cardBorder ? '--card-border:' + cardBorder + ';' : ''}"` : '';
