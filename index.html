@@ -297,19 +297,19 @@
   }
   .grid.cols-3 {
     grid-template-columns: repeat(3, min(28vw, 140px));
-    grid-auto-rows: min(37.33vw, 187px);
+    grid-auto-rows: min(28vw, 140px);
   }
   .grid.cols-4 {
     grid-template-columns: repeat(4, min(21vw, 125px));
-    grid-auto-rows: min(28vw, 167px);
+    grid-auto-rows: min(21vw, 125px);
   }
   .grid.cols-5 {
     grid-template-columns: repeat(5, min(17vw, 105px));
-    grid-auto-rows: min(22.67vw, 140px);
+    grid-auto-rows: min(17vw, 105px);
   }
   .grid.cols-6 {
     grid-template-columns: repeat(6, min(14.5vw, 95px));
-    grid-auto-rows: min(19.33vw, 127px);
+    grid-auto-rows: min(14.5vw, 95px);
   }
 
   .card {
@@ -722,15 +722,15 @@
     .menu-settings-btn { min-height: 44px; padding: 12px 24px; }
     .grid.cols-4 {
       grid-template-columns: repeat(3, min(28vw, 130px));
-      grid-auto-rows: min(37.33vw, 173px);
+      grid-auto-rows: min(28vw, 130px);
     }
     .grid.cols-5 {
       grid-template-columns: repeat(3, min(28vw, 130px));
-      grid-auto-rows: min(37.33vw, 173px);
+      grid-auto-rows: min(28vw, 130px);
     }
     .grid.cols-6 {
       grid-template-columns: repeat(4, min(21vw, 115px));
-      grid-auto-rows: min(28vw, 153px);
+      grid-auto-rows: min(21vw, 115px);
     }
     .game-header { gap: 6px; padding: 6px 4px; }
     .game-title { font-size: clamp(1rem, 3.5vw, 1.4rem); }
@@ -759,15 +759,15 @@
     .grid { gap: 6px; }
     .grid.cols-3 {
       grid-template-columns: repeat(3, min(20vh, 120px));
-      grid-auto-rows: min(26.67vh, 160px);
+      grid-auto-rows: min(20vh, 120px);
     }
     .grid.cols-4, .grid.cols-5 {
       grid-template-columns: repeat(4, min(18vh, 100px));
-      grid-auto-rows: min(24vh, 133px);
+      grid-auto-rows: min(18vh, 100px);
     }
     .grid.cols-6 {
       grid-template-columns: repeat(6, min(14vh, 85px));
-      grid-auto-rows: min(18.67vh, 113px);
+      grid-auto-rows: min(14vh, 85px);
     }
     .win-overlay { padding: 10px; }
     .win-emoji svg { width: 50px; height: 50px; }
@@ -782,19 +782,19 @@
     .hint-btn { padding: 5px 12px; font-size: 0.78rem; }
     .grid.cols-3 {
       grid-template-columns: repeat(6, min(13vh, 90px));
-      grid-auto-rows: min(17.33vh, 120px);
+      grid-auto-rows: min(13vh, 90px);
     }
     .grid.cols-4 {
       grid-template-columns: repeat(4, min(16vh, 95px));
-      grid-auto-rows: min(21.33vh, 127px);
+      grid-auto-rows: min(16vh, 95px);
     }
     .grid.cols-5 {
       grid-template-columns: repeat(5, min(14vh, 85px));
-      grid-auto-rows: min(18.67vh, 113px);
+      grid-auto-rows: min(14vh, 85px);
     }
     .grid.cols-6 {
       grid-template-columns: repeat(6, min(12vh, 75px));
-      grid-auto-rows: min(16vh, 100px);
+      grid-auto-rows: min(12vh, 75px);
     }
   }
 </style>
@@ -1029,6 +1029,13 @@ const difficultyConfig = {
 };
 
 const levelNames = { 1: 'Pictures', 2: 'Words', 3: 'Numbers', 4: 'Letters' };
+
+// Deck (card-back) colours per non-picture level so each game type looks distinct
+const levelDeckColors = {
+  2: { gradient: 'linear-gradient(145deg, #8e24aa, #6a1b9a, #ab47bc)', border: '#ce93d8' }, // Words / Names – purple
+  3: { gradient: 'linear-gradient(145deg, #00897b, #00695c, #26a69a)', border: '#80cbc4' }, // Numbers – teal
+  4: { gradient: 'linear-gradient(145deg, #fb8c00, #ef6c00, #ffa726)', border: '#ffcc80' }  // Letters – orange
+};
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // SOUND ENGINE (Web Audio API)
@@ -1509,8 +1516,9 @@ function startGame() {
     const theme = themes[currentTheme] || themes.princess;
     const isThemed = currentLevel === 1;
     const cardBackPattern = isThemed ? theme.cardBack : themes.princess.cardBack;
-    const cardGradient = isThemed ? theme.cardBackGradient : '';
-    const cardBorder = isThemed ? (currentTheme === 'animals' ? '#81c784' : currentTheme === 'sports' ? '#42a5f5' : '') : '';
+    const levelDeck = levelDeckColors[currentLevel];
+    const cardGradient = isThemed ? theme.cardBackGradient : (levelDeck ? levelDeck.gradient : '');
+    const cardBorder = isThemed ? (currentTheme === 'animals' ? '#81c784' : currentTheme === 'sports' ? '#42a5f5' : '') : (levelDeck ? levelDeck.border : '');
     const cardStyle = (cardGradient || cardBorder) ? `style="${cardGradient ? '--card-bg:' + cardGradient + ';' : ''}${cardBorder ? '--card-border:' + cardBorder + ';' : ''}"` : '';
     card.innerHTML = `
       <div class="card-face card-back" ${cardStyle}><div class="card-back-pattern">${cardBackPattern}</div><div class="card-back-shimmer"></div></div>
