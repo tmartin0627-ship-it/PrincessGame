@@ -1145,9 +1145,10 @@ function shuffle(arr) {
 function calcStars(moves, pairs) {
   // Proportional thresholds so every difficulty asks for the same standard of
   // play (rather than a flat +2, which was much stricter on bigger boards).
-  // 3‚òÖ = within 50% extra moves, 2‚òÖ = within double, 1‚òÖ = completed.
+  // 3‚òÖ = within 60% extra moves, 2‚òÖ = within double, 1‚òÖ = completed.
+  // Lands on Easy ‚â§5, Medium ‚â§8, Hard ‚â§10 for 3‚òÖ.
   const perfect = pairs;  // perfect = every flip is a match
-  if (moves <= Math.round(perfect * 1.5)) return 3;
+  if (moves <= Math.round(perfect * 1.6)) return 3;
   if (moves <= Math.round(perfect * 2)) return 2;
   return 1;
 }
