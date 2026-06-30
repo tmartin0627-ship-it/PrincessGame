@@ -589,6 +589,30 @@
   .close-btn:hover { background: #f3e5f5; }
   .close-btn:active { transform: scale(0.95); }
 
+  .voice-select {
+    max-width: 56%;
+    padding: 8px 10px;
+    border: 2px solid var(--purple-light);
+    border-radius: 10px;
+    background: white;
+    color: var(--purple);
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+  }
+  .voice-hint {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: #777;
+    text-align: left;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin: 4px 0 2px;
+  }
+  .voice-hint b { color: var(--pink-dark); }
+
   .setting-section-label {
     padding-top: 10px;
     border-top: 1px solid #f0f0f0;
@@ -894,6 +918,11 @@
       <span class="toggle-slider"></span>
     </label>
   </div>
+  <div class="setting-row" id="germanVoiceRow" style="display:none">
+    <span>German voice</span>
+    <select id="germanVoiceSelect" class="voice-select" onchange="selectGermanVoice()"></select>
+  </div>
+  <div class="voice-hint" id="voiceHint" style="display:none"></div>
   <div id="themeSection">
     <div class="setting-section-label">Pictures Theme</div>
     <div class="theme-picker" id="themePicker"></div>
@@ -1114,34 +1143,66 @@ const germanNumbers = {
   '0':'null','1':'eins','2':'zwei','3':'drei','4':'vier','5':'fünf',
   '6':'sechs','7':'sieben','8':'acht','9':'neun','10':'zehn','11':'elf'
 };
+// Natural, native-sounding German voices Apple/Google ship (highest first).
+const PREFERRED_DE = ['siri','anna','helena','petra','katrin','markus','viktor','yannick','martin','google'];
+// Robotic / novelty system voices to avoid — these are the ones that sound
+// like a machine and mispronounce, exactly what we don't want kids copying.
+const NOVELTY_VOICES = ['eddy','flo','grandma','grandpa','reed','rocko','sandy','shelley','bahh','albert',
+  'bad news','good news','bells','boing','bubbles','jester','organ','superstar','trinoids','whisper',
+  'wobble','zarvox','cellos','junior','ralph','kathy','fred','deranged','hysterical','pipe'];
 const Speech = {
   enabled: true,
   supported: typeof window !== 'undefined' && 'speechSynthesis' in window,
   voices: [],
+  preferredGerman: '', // a voice name the parent picked in Settings
+  onVoices: null,      // optional callback when the voice list loads
   init() {
     if (!this.supported) return;
     this.voices = window.speechSynthesis.getVoices();
     // Voices often load asynchronously on iOS/Chrome
-    window.speechSynthesis.onvoiceschanged = () => { this.voices = window.speechSynthesis.getVoices(); };
+    window.speechSynthesis.onvoiceschanged = () => {
+      this.voices = window.speechSynthesis.getVoices();
+      if (this.onVoices) this.onVoices();
+    };
+  },
+  voicesFor(lang) {
+    if (!this.voices.length) this.voices = window.speechSynthesis.getVoices();
+    const base = lang.toLowerCase().split('-')[0];
+    return this.voices.filter(v => v.lang && v.lang.toLowerCase().replace('_', '-').startsWith(base));
+  },
+  // Rank voices so the most natural, native one wins.
+  scoreVoice(v, want) {
+    const n = (v.name || '').toLowerCase();
+    let s = 0;
+    if (/enhanced|premium|neural|natural|siri/.test(n)) s += 6; // downloaded HQ voices
+    const pi = PREFERRED_DE.findIndex(p => n.includes(p));
+    if (pi !== -1) s += 4 - pi * 0.2;
+    if (NOVELTY_VOICES.some(p => n.includes(p))) s -= 8;
+    if (v.lang && v.lang.toLowerCase().replace('_', '-') === want) s += 1; // exact region (de-DE)
+    if (v.localService) s += 0.5;
+    if (v.default) s += 0.3;
+    return s;
   },
   pickVoice(lang) {
-    if (!this.voices.length) this.voices = window.speechSynthesis.getVoices();
     const want = lang.toLowerCase();
-    const base = want.split('-')[0];
-    return this.voices.find(v => v.lang && v.lang.toLowerCase() === want)
-        || this.voices.find(v => v.lang && v.lang.toLowerCase().startsWith(base))
-        || null;
+    const pool = this.voicesFor(lang);
+    if (!pool.length) return null;
+    // Honour the parent's explicit choice for German
+    if (want.startsWith('de') && this.preferredGerman) {
+      const chosen = pool.find(v => v.name === this.preferredGerman);
+      if (chosen) return chosen;
+    }
+    return pool.slice().sort((a, b) => this.scoreVoice(b, want) - this.scoreVoice(a, want))[0];
   },
   say(text, lang = 'en-US') {
     if (!this.enabled || !this.supported || !text) return;
     try {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang;
-      u.rate = 0.85;  // a touch slow & clear for little ears
-      u.pitch = 1.15;
       const v = this.pickVoice(lang);
-      if (v) u.voice = v;
+      if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = lang; }
+      u.rate = 0.82;  // a touch slow & clear for little ears
+      u.pitch = 1.0;  // natural pitch — high pitch sounds more robotic
       window.speechSynthesis.speak(u);
     } catch (e) {}
   }
@@ -1270,7 +1331,53 @@ function updateDifficultyStars() {
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // SETTINGS
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
-function openSettings() { Sound.click(); updateSettingsSections(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
+function openSettings() { Sound.click(); updateSettingsSections(); renderVoiceControls(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
+
+// German voice picker + guidance. Lets the parent choose the most natural
+// German voice their device has, and explains how to add Apple's free
+// native-speaker "Enhanced" voice when only the robotic one is installed.
+function renderVoiceControls() {
+  const row = document.getElementById('germanVoiceRow');
+  const hint = document.getElementById('voiceHint');
+  const select = document.getElementById('germanVoiceSelect');
+  if (!row || !hint || !select) return;
+  if (!Speech.enabled || !Speech.supported) { row.style.display = 'none'; hint.style.display = 'none'; return; }
+  const deVoices = Speech.voicesFor('de-DE');
+  if (!deVoices.length) {
+    // No German voice on this device → numbers would sound wrong/robotic.
+    row.style.display = 'none';
+    hint.style.display = '';
+    hint.innerHTML = 'For a natural German number voice, add it on your iPhone: ' +
+      '<b>Settings → Accessibility → Spoken Content → Voices → German</b>, then pick ' +
+      '<b>“Anna”</b> and tap the cloud to download. Reload this page afterwards.';
+    return;
+  }
+  // Sort best-first so the default selection is the most natural voice.
+  const ranked = deVoices.slice().sort((a, b) => Speech.scoreVoice(b, 'de-de') - Speech.scoreVoice(a, 'de-de'));
+  const current = Speech.preferredGerman || (ranked[0] && ranked[0].name);
+  select.innerHTML = '';
+  ranked.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.name;
+    opt.textContent = v.name.replace(/\s*\(.*?\)\s*/g, '').trim() || v.name;
+    if (v.name === current) opt.selected = true;
+    select.appendChild(opt);
+  });
+  row.style.display = '';
+  hint.style.display = '';
+  hint.innerHTML = 'Hear a robot? Choose another voice above, or install Apple’s native ' +
+    '<b>“Anna (Enhanced)”</b> voice: <b>Settings → Accessibility → Spoken Content → Voices → German</b>.';
+}
+
+function selectGermanVoice() {
+  const select = document.getElementById('germanVoiceSelect');
+  if (!select) return;
+  Speech.preferredGerman = select.value;
+  const s = Storage.getSettings();
+  s.germanVoice = select.value;
+  Storage.saveSettings(s);
+  Speech.say('eins, zwei, drei', 'de-DE'); // preview the chosen voice
+}
 function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); document.getElementById('settingsOverlay').classList.remove('open'); }
 function toggleSound() {
   Sound.enabled = document.getElementById('soundToggle').checked;
@@ -1285,6 +1392,7 @@ function toggleVoice() {
   s.voice = Speech.enabled;
   Storage.saveSettings(s);
   if (Speech.enabled) { Speech.init(); Speech.say('Hello!', 'en-US'); }
+  renderVoiceControls();
 }
 function resetProgress() {
   Storage.reset();
@@ -1297,7 +1405,10 @@ function loadSettings() {
   Sound.enabled = s.sound;
   document.getElementById('soundToggle').checked = s.sound;
   Speech.enabled = s.voice !== false;
+  Speech.preferredGerman = s.germanVoice || '';
   Speech.init();
+  // Re-render the voice picker whenever the device finishes loading its voices
+  Speech.onVoices = () => { if (document.getElementById('settingsPanel').classList.contains('open')) renderVoiceControls(); };
   const voiceToggle = document.getElementById('voiceToggle');
   if (voiceToggle) voiceToggle.checked = Speech.enabled;
   // Hide the Talk toggle on browsers without speech synthesis
