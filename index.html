@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Maya's Game">
 <meta name="theme-color" content="#fce4ec">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <title>Maya's Game</title>
 <style>
   :root {
@@ -884,6 +887,13 @@
       <span class="toggle-slider"></span>
     </label>
   </div>
+  <div class="setting-row" id="voiceRow">
+    <span>Talk</span>
+    <label class="toggle">
+      <input type="checkbox" id="voiceToggle" checked onchange="toggleVoice()">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
   <div id="themeSection">
     <div class="setting-section-label">Pictures Theme</div>
     <div class="theme-picker" id="themePicker"></div>
@@ -1097,6 +1107,57 @@ const Sound = {
   deal(i, n)  { this.play(400 + (i/n)*400, 'sine', 0.05, 0.06); }
 };
 
+// ═══ SPEECH ENGINE (Web Speech API) ═══
+// Reads each card aloud so a pre-reader can play independently. Numbers are
+// spoken in German (eins, zwei, drei…); everything else in English.
+const germanNumbers = {
+  '0':'null','1':'eins','2':'zwei','3':'drei','4':'vier','5':'fünf',
+  '6':'sechs','7':'sieben','8':'acht','9':'neun','10':'zehn','11':'elf'
+};
+const Speech = {
+  enabled: true,
+  supported: typeof window !== 'undefined' && 'speechSynthesis' in window,
+  voices: [],
+  init() {
+    if (!this.supported) return;
+    this.voices = window.speechSynthesis.getVoices();
+    // Voices often load asynchronously on iOS/Chrome
+    window.speechSynthesis.onvoiceschanged = () => { this.voices = window.speechSynthesis.getVoices(); };
+  },
+  pickVoice(lang) {
+    if (!this.voices.length) this.voices = window.speechSynthesis.getVoices();
+    const want = lang.toLowerCase();
+    const base = want.split('-')[0];
+    return this.voices.find(v => v.lang && v.lang.toLowerCase() === want)
+        || this.voices.find(v => v.lang && v.lang.toLowerCase().startsWith(base))
+        || null;
+  },
+  say(text, lang = 'en-US') {
+    if (!this.enabled || !this.supported || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = 0.85;  // a touch slow & clear for little ears
+      u.pitch = 1.15;
+      const v = this.pickVoice(lang);
+      if (v) u.voice = v;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+};
+
+// What a card should say when flipped (Numbers speak German).
+function cardSpeech(item) {
+  if (item.isJoker) return { text: 'Free!', lang: 'en-US' };
+  if (currentLevel === 3) {
+    const n = item.content.name;
+    return { text: germanNumbers[n] || n, lang: 'de-DE' };
+  }
+  if (currentLevel === 4) return { text: item.content.name.toUpperCase(), lang: 'en-US' };
+  return { text: item.content.name, lang: 'en-US' };
+}
+
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // STORAGE (localStorage)
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
@@ -1113,7 +1174,7 @@ const Storage = {
   bestForLevel(lvl) { return Math.max(this.getStars(lvl,'easy'), this.getStars(lvl,'medium'), this.getStars(lvl,'hard')); },
   totalStars() { return Object.values(this.getProgress()).reduce((s,v) => s + (v.stars||0), 0); },
   maxStars() { return 36; }, // 4 levels √ó 3 difficulties √ó 3 stars
-  getSettings() { try { return JSON.parse(localStorage.getItem(this.SKEY)) || { sound: true, theme: 'princess' }; } catch { return { sound: true, theme: 'princess' }; } },
+  getSettings() { try { return JSON.parse(localStorage.getItem(this.SKEY)) || { sound: true, voice: true, theme: 'princess' }; } catch { return { sound: true, voice: true, theme: 'princess' }; } },
   saveSettings(s) { localStorage.setItem(this.SKEY, JSON.stringify(s)); },
   reset() { localStorage.removeItem(this.KEY); }
 };
@@ -1218,6 +1279,13 @@ function toggleSound() {
   Storage.saveSettings(s);
   if (Sound.enabled) Sound.click();
 }
+function toggleVoice() {
+  Speech.enabled = document.getElementById('voiceToggle').checked;
+  const s = Storage.getSettings();
+  s.voice = Speech.enabled;
+  Storage.saveSettings(s);
+  if (Speech.enabled) { Speech.init(); Speech.say('Hello!', 'en-US'); }
+}
 function resetProgress() {
   Storage.reset();
   updateMenuStars();
@@ -1228,6 +1296,12 @@ function loadSettings() {
   const s = Storage.getSettings();
   Sound.enabled = s.sound;
   document.getElementById('soundToggle').checked = s.sound;
+  Speech.enabled = s.voice !== false;
+  Speech.init();
+  const voiceToggle = document.getElementById('voiceToggle');
+  if (voiceToggle) voiceToggle.checked = Speech.enabled;
+  // Hide the Talk toggle on browsers without speech synthesis
+  if (!Speech.supported) { const r = document.getElementById('voiceRow'); if (r) r.style.display = 'none'; }
   currentTheme = s.theme || 'princess';
   deckColors = { ...defaultDeckColors, ...(s.deckColors || {}) };
   renderThemePicker();
@@ -1424,6 +1498,7 @@ function flipCard(index) {
   if (!card || card.flipped || card.matched) return;
 
   Sound.flip();
+  Speech.say(card.speakText, card.speakLang);
   card.flipped = true;
   card.el.classList.add('flipped');
 
@@ -1607,7 +1682,8 @@ function startGame() {
     `;
 
     grid.appendChild(card);
-    cards.push({ el: card, charIndex: item.charIndex, flipped: false, matched: false, isJoker: item.isJoker || false });
+    const sp = cardSpeech(item);
+    cards.push({ el: card, charIndex: item.charIndex, flipped: false, matched: false, isJoker: item.isJoker || false, speakText: sp.text, speakLang: sp.lang });
   });
 
   // Deal animation
