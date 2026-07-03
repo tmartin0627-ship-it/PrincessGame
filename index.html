@@ -613,6 +613,37 @@
   }
   .voice-hint b { color: var(--pink-dark); }
 
+  /* ─── Install Banner ─────────────────────── */
+  .install-banner {
+    position: fixed;
+    left: 12px; right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 350;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 2px solid var(--purple-light);
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 0 8px 28px rgba(123,31,162,0.25);
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.45;
+  }
+  .install-banner .install-text { flex: 1; }
+  .install-banner b { color: var(--pink-dark); }
+  .install-close {
+    width: 30px; height: 30px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+    background: white;
+    color: #999;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+
   /* ─── Voice Recorder ─────────────────────── */
   .recorder-tabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
   .recorder-tab {
@@ -989,6 +1020,14 @@
     <button class="reset-btn" onclick="resetProgress()">Fortschritt zurücksetzen</button>
     <button class="close-btn" onclick="closeSettings()">Schließen</button>
   </div>
+</div>
+
+<!-- ═══ INSTALL BANNER (iOS, not yet installed) ═══ -->
+<div class="install-banner" id="installBanner" style="display:none">
+  <span class="install-text">📲 Als App installieren: Tippe auf <b>Teilen</b>
+    <svg viewBox="0 0 20 20" width="16" height="16" style="vertical-align:-3px"><path d="M10,12 L10,3 M7,5.5 L10,2.5 L13,5.5" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6,8 L4,8 L4,17 L16,17 L16,8 L14,8" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    und dann <b>„Zum Home-Bildschirm“</b></span>
+  <button class="install-close" onclick="dismissInstallBanner()" aria-label="Schließen">✕</button>
 </div>
 
 <!-- ═══ VOICE RECORDER ═══ -->
@@ -2176,6 +2215,27 @@ initBgParticles();
 // Load the family's recorded words so cards can play them immediately
 VoiceBank.loadAll();
 if (!VoiceBank.supported) { const rs = document.getElementById('recorderSection'); if (rs) rs.style.display = 'none'; }
+
+// Offline support: cache the whole game so it works with no internet
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// On iOS in the browser (not yet installed), invite the parent to install
+(function initInstallBanner() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone = window.navigator.standalone === true ||
+    (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  let dismissed = false;
+  try { dismissed = !!localStorage.getItem('install-banner-dismissed'); } catch (e) {}
+  if (isIOS && !standalone && !dismissed) {
+    document.getElementById('installBanner').style.display = 'flex';
+  }
+})();
+function dismissInstallBanner() {
+  try { localStorage.setItem('install-banner-dismissed', '1'); } catch (e) {}
+  document.getElementById('installBanner').style.display = 'none';
+}
 
 // Disable all touch scrolling (kids accidentally scroll when tapping cards),
 // but keep the settings panel scrollable when it's taller than the screen
