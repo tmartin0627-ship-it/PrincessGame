@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Maya's Game">
+<meta name="apple-mobile-web-app-title" content="Mayas Spiel">
 <meta name="theme-color" content="#fce4ec">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<title>Maya's Game</title>
+<title>Mayas Spiel</title>
 <style>
   :root {
     --pink: #e91e90;
@@ -613,6 +613,54 @@
   }
   .voice-hint b { color: var(--pink-dark); }
 
+  /* ─── Voice Recorder ─────────────────────── */
+  .recorder-tabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .recorder-tab {
+    padding: 6px 12px;
+    border: 2px solid var(--purple-light);
+    border-radius: 50px;
+    background: white;
+    color: var(--purple);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .recorder-tab.active { background: var(--purple-light); color: white; }
+  .recorder-word {
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 800;
+    color: var(--pink-dark);
+    margin: 8px 0 4px;
+    min-height: 1.2em;
+  }
+  .recorder-word .rec-check { font-size: 0.5em; vertical-align: middle; }
+  .recorder-status { font-size: 0.85rem; color: #777; margin-bottom: 14px; min-height: 2.4em; }
+  .recorder-controls { display: flex; gap: 12px; justify-content: center; align-items: center; margin-bottom: 12px; }
+  .rec-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--purple-light);
+    background: white;
+    color: var(--purple);
+    font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rec-btn:active { transform: scale(0.92); }
+  .rec-btn:disabled { opacity: 0.3; }
+  .rec-record {
+    width: 68px; height: 68px;
+    font-size: 1.8rem;
+    color: white;
+    background: linear-gradient(135deg, #ef5350, #e53935);
+    border-color: #ffcdd2;
+    box-shadow: 0 4px 14px rgba(229,57,53,0.4);
+  }
+  .rec-record.recording { animation: recPulse 1s ease-in-out infinite; }
+  @keyframes recPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.5); }
+    50% { box-shadow: 0 0 0 14px rgba(229,57,53,0); }
+  }
+  .recorder-progress { font-size: 0.8rem; color: var(--purple); font-weight: 600; }
+
   .setting-section-label {
     padding-top: 10px;
     border-top: 1px solid #f0f0f0;
@@ -839,53 +887,53 @@
 
 <!-- ‚ïê‚ïê‚ïê MENU SCREEN ‚ïê‚ïê‚ïê -->
 <div id="menuScreen" class="screen visible">
-  <h1 class="menu-title">Maya's Game</h1>
-  <p class="menu-subtitle">Choose your adventure!</p>
+  <h1 class="menu-title">Mayas Spiel</h1>
+  <p class="menu-subtitle">Wähle dein Abenteuer!</p>
   <div class="total-stars-bar" id="totalStars"></div>
   <div class="level-cards">
     <div class="level-card" onclick="selectLevel(1)">
       <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><polygon points="28,28 32,12 36,22 40,6 44,22 48,12 52,28" fill="#ffd54f" stroke="#f9a825" stroke-width="1.2"/><circle cx="40" cy="38" r="14" fill="#ffe0b2"/><circle cx="35" cy="36" r="2" fill="#5d4037"/><circle cx="45" cy="36" r="2" fill="#5d4037"/><path d="M37,42 Q40,46 43,42" stroke="#e91e63" fill="none" stroke-width="1.5" stroke-linecap="round"/><path d="M24,30 Q22,40 26,48" stroke="#f48fb1" fill="none" stroke-width="3" stroke-linecap="round"/><path d="M56,30 Q58,40 54,48" stroke="#f48fb1" fill="none" stroke-width="3" stroke-linecap="round"/><path d="M28,50 L24,74 40,66 56,74 52,50" fill="#ec407a"/><rect x="34" y="50" width="12" height="6" rx="2" fill="#ffd54f"/></svg></div>
-      <div class="level-card-title">Pictures</div>
+      <div class="level-card-title">Bilder</div>
       <div class="level-card-stars" id="menu-stars-1"></div>
     </div>
     <div class="level-card" onclick="selectLevel(2)">
       <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><rect x="12" y="14" width="56" height="50" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><line x1="40" y1="18" x2="40" y2="60" stroke="#e0c080" stroke-width="1.5"/><line x1="20" y1="26" x2="36" y2="26" stroke="#ce93d8" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="33" x2="34" y2="33" stroke="#f48fb1" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="40" x2="36" y2="40" stroke="#ce93d8" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="47" x2="30" y2="47" stroke="#f48fb1" stroke-width="2" stroke-linecap="round"/><path d="M52,28 L56,24 L60,28 L56,32 Z" fill="#e91e63"/><circle cx="56" cy="42" r="5" fill="none" stroke="#ffd54f" stroke-width="2"/><polygon points="56,37 57.5,39.5 60,39.5 58,41 59,43.5 56,42 53,43.5 54,41 52,39.5 54.5,39.5" fill="#ffd54f"/></svg></div>
-      <div class="level-card-title">Words</div>
+      <div class="level-card-title">Wörter</div>
       <div class="level-card-stars" id="menu-stars-2"></div>
     </div>
     <div class="level-card" onclick="selectLevel(3)">
       <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><rect x="10" y="40" width="22" height="26" rx="4" fill="#f48fb1" stroke="#e91e63" stroke-width="1.5"/><rect x="29" y="28" width="22" height="38" rx="4" fill="#ce93d8" stroke="#9c27b0" stroke-width="1.5"/><rect x="48" y="16" width="22" height="50" rx="4" fill="#90caf9" stroke="#42a5f5" stroke-width="1.5"/><text x="21" y="58" text-anchor="middle" fill="white" font-weight="bold" font-size="14">1</text><text x="40" y="52" text-anchor="middle" fill="white" font-weight="bold" font-size="14">2</text><text x="59" y="46" text-anchor="middle" fill="white" font-weight="bold" font-size="14">3</text><polygon points="40,6 42,11 47,11 43,14 44.5,19 40,16 35.5,19 37,14 33,11 38,11" fill="#ffd54f"/></svg></div>
-      <div class="level-card-title">Numbers</div>
+      <div class="level-card-title">Zahlen</div>
       <div class="level-card-stars" id="menu-stars-3"></div>
     </div>
     <div class="level-card" onclick="selectLevel(4)">
       <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><text x="14" y="38" fill="#e91e63" font-weight="bold" font-size="28" font-family="sans-serif">A</text><text x="42" y="38" fill="#7b1fa2" font-weight="bold" font-size="28" font-family="sans-serif">B</text><text x="22" y="66" fill="#1565c0" font-weight="bold" font-size="20" font-family="sans-serif">a</text><text x="46" y="66" fill="#e65100" font-weight="bold" font-size="20" font-family="sans-serif">b</text><polygon points="40,4 42,9 47,9 43,12 44.5,17 40,14 35.5,17 37,12 33,9 38,9" fill="#ffd54f"/></svg></div>
-      <div class="level-card-title">Letters</div>
+      <div class="level-card-title">Buchstaben</div>
       <div class="level-card-stars" id="menu-stars-4"></div>
     </div>
   </div>
-  <button class="menu-settings-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16" style="vertical-align:-2px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Settings</button>
+  <button class="menu-settings-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16" style="vertical-align:-2px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Einstellungen</button>
 </div>
 
 <!-- ‚ïê‚ïê‚ïê GAME SCREEN ‚ïê‚ïê‚ïê -->
 <div id="gameScreen" class="screen hidden">
   <div class="game-header">
     <button class="back-btn" onclick="showMenu()"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M13,4 L7,10 L13,16" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <h2 class="game-title" id="gameTitle">Pictures</h2>
+    <h2 class="game-title" id="gameTitle">Bilder</h2>
     <button class="gear-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
   </div>
   <div class="difficulty" id="difficultyBar">
-    <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">Easy <span class="diff-stars" id="diff-stars-easy"></span></button>
-    <button class="diff-btn" data-level="medium" onclick="setDifficulty('medium')">Medium <span class="diff-stars" id="diff-stars-medium"></span></button>
-    <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">Hard <span class="diff-stars" id="diff-stars-hard"></span></button>
+    <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">Leicht <span class="diff-stars" id="diff-stars-easy"></span></button>
+    <button class="diff-btn" data-level="medium" onclick="setDifficulty('medium')">Mittel <span class="diff-stars" id="diff-stars-medium"></span></button>
+    <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">Schwer <span class="diff-stars" id="diff-stars-hard"></span></button>
   </div>
   <div class="game-hud">
-    <div class="move-counter" id="moveCounter">Moves: 0</div>
+    <div class="move-counter" id="moveCounter">Züge: 0</div>
     <div class="scroll-btns" id="scrollBtns">
       <button class="scroll-btn" onclick="scrollPage(-200)" aria-label="Scroll up">&#9650;</button>
       <button class="scroll-btn" onclick="scrollPage(200)" aria-label="Scroll down">&#9660;</button>
     </div>
-    <button class="hint-btn" id="hintBtn" onclick="useHint()" title="Each hint costs 2 moves"><svg viewBox="0 0 20 20" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><path d="M10,2 C6.5,2 4,4.8 4,8 C4,10.5 5.5,12 7,13 L7,15 L13,15 L13,13 C14.5,12 16,10.5 16,8 C16,4.8 13.5,2 10,2Z" fill="#ffd54f" stroke="#f9a825" stroke-width="1"/><rect x="7" y="15.5" width="6" height="2" rx="1" fill="#f9a825"/><line x1="10" y1="6" x2="10" y2="10" stroke="#f57f17" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="5" r="1" fill="#f57f17"/></svg> Hint (3)</button>
+    <button class="hint-btn" id="hintBtn" onclick="useHint()" title="Jeder Tipp kostet 2 Züge"><svg viewBox="0 0 20 20" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><path d="M10,2 C6.5,2 4,4.8 4,8 C4,10.5 5.5,12 7,13 L7,15 L13,15 L13,13 C14.5,12 16,10.5 16,8 C16,4.8 13.5,2 10,2Z" fill="#ffd54f" stroke="#f9a825" stroke-width="1"/><rect x="7" y="15.5" width="6" height="2" rx="1" fill="#f9a825"/><line x1="10" y1="6" x2="10" y2="10" stroke="#f57f17" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="5" r="1" fill="#f57f17"/></svg> Tipp (3)</button>
   </div>
   <div class="grid cols-3" id="grid"></div>
 </div>
@@ -893,47 +941,72 @@
 <!-- ‚ïê‚ïê‚ïê WIN OVERLAY ‚ïê‚ïê‚ïê -->
 <div class="win-overlay" id="winOverlay">
   <div class="win-emoji"><svg viewBox="0 0 100 100" width="80" height="80"><defs><linearGradient id="crownG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><polygon points="30,55 35,25 42,42 50,18 58,42 65,25 70,55" fill="url(#crownG)" stroke="#e65100" stroke-width="1.5"/><rect x="30" y="55" width="40" height="8" rx="3" fill="url(#crownG)" stroke="#e65100" stroke-width="1"/><circle cx="50" cy="22" r="4" fill="#e91e63"/><circle cx="38" cy="30" r="3" fill="#7c4dff"/><circle cx="62" cy="30" r="3" fill="#00bcd4"/><polygon points="50,70 52,76 58,76 53,80 55,86 50,82 45,86 47,80 42,76 48,76" fill="#ffd54f"><animateTransform attributeName="transform" type="rotate" values="0 50 78;15 50 78;-15 50 78;0 50 78" dur="2s" repeatCount="indefinite"/></polygon><circle cx="25" cy="30" r="2.5" fill="#e91e63" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="75" cy="35" r="2" fill="#ffd54f" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite"/></circle><circle cx="20" cy="50" r="1.5" fill="#ce93d8" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.3s" repeatCount="indefinite"/></circle><circle cx="80" cy="48" r="2" fill="#42a5f5" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.6s" repeatCount="indefinite"/></circle><polygon points="22,18 23,21 26,21 23.5,23 24.5,26 22,24 19.5,26 20.5,23 18,21 21,21" fill="#ffd54f" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite"/></polygon><polygon points="78,20 79,23 82,23 79.5,25 80.5,28 78,26 75.5,28 76.5,25 74,23 77,23" fill="#f48fb1" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.7s" repeatCount="indefinite"/></polygon></svg></div>
-  <div class="win-text" id="winText">You did it!</div>
+  <div class="win-text" id="winText">Geschafft!</div>
   <div class="win-moves" id="winMoves"></div>
   <div class="star-rating" id="starRating"></div>
-  <button class="win-btn" onclick="startGame()">Play Again</button>
-  <button class="win-btn secondary" onclick="showMenu()">Menu</button>
+  <button class="win-btn" onclick="startGame()">Nochmal!</button>
+  <button class="win-btn secondary" onclick="showMenu()">Menü</button>
 </div>
 
 <!-- ‚ïê‚ïê‚ïê SETTINGS ‚ïê‚ïê‚ïê -->
 <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
 <div class="settings-panel" id="settingsPanel">
-  <h3><svg viewBox="0 0 20 20" width="18" height="18" style="vertical-align:-3px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="var(--pink-dark)" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="var(--pink-dark)" stroke-width="1.8" stroke-linecap="round"/></svg> Settings</h3>
+  <h3><svg viewBox="0 0 20 20" width="18" height="18" style="vertical-align:-3px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="var(--pink-dark)" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="var(--pink-dark)" stroke-width="1.8" stroke-linecap="round"/></svg> Einstellungen</h3>
   <div class="setting-row">
-    <span>Sound</span>
+    <span>Ton</span>
     <label class="toggle">
       <input type="checkbox" id="soundToggle" checked onchange="toggleSound()">
       <span class="toggle-slider"></span>
     </label>
   </div>
   <div class="setting-row" id="voiceRow">
-    <span>Talk</span>
+    <span>Vorlesen</span>
     <label class="toggle">
       <input type="checkbox" id="voiceToggle" checked onchange="toggleVoice()">
       <span class="toggle-slider"></span>
     </label>
   </div>
   <div class="setting-row" id="germanVoiceRow" style="display:none">
-    <span>German voice</span>
+    <span>Stimme</span>
     <select id="germanVoiceSelect" class="voice-select" onchange="selectGermanVoice()"></select>
   </div>
   <div class="voice-hint" id="voiceHint" style="display:none"></div>
+  <div id="recorderSection">
+    <div class="setting-section-label">Familienstimme</div>
+    <div class="voice-hint" style="display:block">Nimm die Wörter mit deiner eigenen Stimme auf – dann hört Maya <b>Mama oder Papa</b> statt einer Computerstimme.</div>
+    <button class="close-btn" style="width:100%;margin-top:6px" onclick="openRecorder()">🎤 Wörter aufnehmen</button>
+    <div class="voice-hint" id="recorderStatus" style="display:none"></div>
+  </div>
   <div id="themeSection">
-    <div class="setting-section-label">Pictures Theme</div>
+    <div class="setting-section-label">Bilder-Thema</div>
     <div class="theme-picker" id="themePicker"></div>
   </div>
   <div id="colorSection">
-    <div class="setting-section-label" id="colorSectionLabel">Card Colour</div>
+    <div class="setting-section-label" id="colorSectionLabel">Kartenfarbe</div>
     <div class="theme-picker" id="colorPicker"></div>
   </div>
   <div class="settings-btn-row">
-    <button class="reset-btn" onclick="resetProgress()">Reset Progress</button>
-    <button class="close-btn" onclick="closeSettings()">Close</button>
+    <button class="reset-btn" onclick="resetProgress()">Fortschritt zurücksetzen</button>
+    <button class="close-btn" onclick="closeSettings()">Schließen</button>
+  </div>
+</div>
+
+<!-- ═══ VOICE RECORDER ═══ -->
+<div class="settings-overlay" id="recorderOverlay" onclick="closeRecorder()"></div>
+<div class="settings-panel" id="recorderPanel">
+  <h3>🎤 Familienstimme</h3>
+  <div class="recorder-tabs" id="recorderTabs"></div>
+  <div class="recorder-word" id="recorderWord">–</div>
+  <div class="recorder-status" id="recorderState">Tippe auf den roten Knopf und sprich das Wort.</div>
+  <div class="recorder-controls">
+    <button class="rec-btn rec-prev" onclick="recorderPrev()" aria-label="Zurück">◀</button>
+    <button class="rec-btn rec-record" id="recBtn" onclick="recorderToggle()" aria-label="Aufnehmen">●</button>
+    <button class="rec-btn rec-play" id="recPlayBtn" onclick="recorderPlay()" aria-label="Anhören">▶</button>
+    <button class="rec-btn rec-next" onclick="recorderNext()" aria-label="Weiter">▶▶</button>
+  </div>
+  <div class="recorder-progress" id="recorderProgress"></div>
+  <div class="settings-btn-row">
+    <button class="close-btn" onclick="closeRecorder()">Fertig</button>
   </div>
 </div>
 
@@ -949,63 +1022,63 @@ function getCharacters() {
 
 const themes = {
 princess: {
-  name: 'Princess',
+  name: 'Prinzessin',
   icon: '👑',
   cardBack: `<svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><polygon points="30,8 33,16 41,16 35,21 37,29 30,25 23,29 25,21 19,16 27,16" fill="rgba(255,255,255,0.5)"/><polygon points="30,2 32,6 36,6 33,9 34,13 30,10 26,13 27,9 24,6 28,6" fill="rgba(255,213,79,0.6)"/><polygon points="15,35 17,39 21,39 18,42 19,46 15,43 11,46 12,42 9,39 13,39" fill="rgba(255,255,255,0.3)"/><polygon points="45,35 47,39 51,39 48,42 49,46 45,43 41,46 42,42 39,39 43,39" fill="rgba(255,255,255,0.3)"/><path d="M20,60 L24,52 L27,56 L30,48 L33,56 L36,52 L40,60Z" fill="rgba(255,255,255,0.35)" stroke="rgba(255,213,79,0.4)" stroke-width="0.8"/><circle cx="15" cy="20" r="2" fill="rgba(255,255,255,0.25)"/><circle cx="45" cy="22" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="12" cy="55" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="48" cy="58" r="2" fill="rgba(255,255,255,0.2)"/><path d="M22,68 Q30,72 38,68" fill="rgba(255,213,79,0.2)" stroke="rgba(255,213,79,0.3)" stroke-width="0.8"/></svg>`,
   cardBackGradient: 'linear-gradient(145deg, #e91e90, #9c27b0, #e91e63)',
   characters: [
-  { name: "Princess",   emoji: "👸" },
-  { name: "Unicorn",    emoji: "🦄" },
-  { name: "Jewel",      emoji: "💎" },
-  { name: "Castle",     emoji: "🏰" },
-  { name: "Magic Wand", emoji: "🪄" },
-  { name: "Rainbow",    emoji: "🌈" },
-  { name: "Crown",      emoji: "👑" },
-  { name: "Dragon",     emoji: "🐉" },
-  { name: "Frog Prince", emoji: "🐸" },
-  { name: "Fairy",      emoji: "🧚" },
-  { name: "Mermaid",    emoji: "🧜‍♀️" },
-  { name: "Butterfly",  emoji: "🦋" }
+  { name: "Prinzessin",    emoji: "👸" },
+  { name: "Einhorn",       emoji: "🦄" },
+  { name: "Diamant",       emoji: "💎" },
+  { name: "Schloss",       emoji: "🏰" },
+  { name: "Zauberstab",    emoji: "🪄" },
+  { name: "Regenbogen",    emoji: "🌈" },
+  { name: "Krone",         emoji: "👑" },
+  { name: "Drache",        emoji: "🐉" },
+  { name: "Frosch",        emoji: "🐸" },
+  { name: "Fee",           emoji: "🧚" },
+  { name: "Meerjungfrau",  emoji: "🧜‍♀️" },
+  { name: "Schmetterling", emoji: "🦋" }
 ]
 },
 animals: {
-  name: 'Animals',
+  name: 'Tiere',
   icon: '🐾',
   cardBack: `<svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="18" r="5" fill="rgba(255,255,255,0.35)"/><circle cx="25" cy="12" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="35" cy="12" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="22" cy="16" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="38" cy="16" r="2.5" fill="rgba(255,255,255,0.3)"/><circle cx="15" cy="45" r="5" fill="rgba(255,255,255,0.25)"/><circle cx="10" cy="39" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="20" cy="39" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="7" cy="43" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="23" cy="43" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="45" cy="55" r="5" fill="rgba(255,255,255,0.25)"/><circle cx="40" cy="49" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="50" cy="49" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="37" cy="53" r="2.5" fill="rgba(255,255,255,0.2)"/><circle cx="53" cy="53" r="2.5" fill="rgba(255,255,255,0.2)"/><path d="M18,65 Q22,60 26,62 Q30,64 34,60 Q38,64 42,62" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/></svg>`,
   cardBackGradient: 'linear-gradient(145deg, #43a047, #2e7d32, #1b5e20)',
   characters: [
-  { name: "Tiger",    emoji: "🐯" },
-  { name: "Monkey",   emoji: "🐵" },
-  { name: "Bunny",    emoji: "🐰" },
-  { name: "Dog",      emoji: "🐶" },
-  { name: "Elephant", emoji: "🐘" },
-  { name: "Giraffe",  emoji: "🦒" },
-  { name: "Whale",    emoji: "🐳" },
-  { name: "Cat",      emoji: "🐱" },
-  { name: "Penguin",  emoji: "🐧" },
-  { name: "Owl",      emoji: "🦉" },
-  { name: "Fox",      emoji: "🦊" },
-  { name: "Panda",    emoji: "🐼" }
+  { name: "Tiger",   emoji: "🐯" },
+  { name: "Affe",    emoji: "🐵" },
+  { name: "Hase",    emoji: "🐰" },
+  { name: "Hund",    emoji: "🐶" },
+  { name: "Elefant", emoji: "🐘" },
+  { name: "Giraffe", emoji: "🦒" },
+  { name: "Wal",     emoji: "🐳" },
+  { name: "Katze",   emoji: "🐱" },
+  { name: "Pinguin", emoji: "🐧" },
+  { name: "Eule",    emoji: "🦉" },
+  { name: "Fuchs",   emoji: "🦊" },
+  { name: "Panda",   emoji: "🐼" }
 ]
 },
 sports: {
-  name: 'Sports',
+  name: 'Sport',
   icon: '&#9917;',
   cardBack: `<svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="6" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/><line x1="14" y1="20" x2="26" y2="20" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/><line x1="20" y1="14" x2="20" y2="26" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/><circle cx="44" cy="35" r="5" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/><polygon points="12,55 13,59 17,59 14,62 15,66 12,63 9,66 10,62 7,59 11,59" fill="rgba(255,255,255,0.22)"/><polygon points="46,58 47,62 51,62 48,65 49,69 46,66 43,69 44,65 41,62 45,62" fill="rgba(255,255,255,0.18)"/><path d="M28,70 Q32,64 36,68 Q40,72 44,68" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="36" r="3.5" fill="rgba(255,255,255,0.15)"/><circle cx="50" cy="18" r="3" fill="rgba(255,255,255,0.15)"/></svg>`,
   cardBackGradient: 'linear-gradient(145deg, #1565c0, #0d47a1, #42a5f5)',
   characters: [
-  { name: "Football",   emoji: "⚽" },
+  { name: "Fußball",    emoji: "⚽" },
   { name: "Basketball", emoji: "🏀" },
   { name: "Tennis",     emoji: "🎾" },
   { name: "Skateboard", emoji: "🛹" },
-  { name: "Bicycle",    emoji: "🚲" },
-  { name: "Trophy",     emoji: "🏆" },
-  { name: "Swimming",   emoji: "🏊" },
-  { name: "Ballerina",  emoji: "🩰" },
+  { name: "Fahrrad",    emoji: "🚲" },
+  { name: "Pokal",      emoji: "🏆" },
+  { name: "Schwimmen",  emoji: "🏊" },
+  { name: "Ballett",    emoji: "🩰" },
   { name: "Golf",       emoji: "⛳" },
-  { name: "Medal",      emoji: "🥇" },
+  { name: "Medaille",   emoji: "🥇" },
   { name: "Volleyball", emoji: "🏐" },
-  { name: "Running",    emoji: "🏃" }
+  { name: "Laufen",     emoji: "🏃" }
 ]
 }
 };
@@ -1079,15 +1152,15 @@ const difficultyConfig = {
   4: { easy: { pairs: 3, cols: 3 }, medium: { pairs: 4, cols: 3 }, hard: { pairs: 6, cols: 4 } }
 };
 
-const levelNames = { 1: 'Pictures', 2: 'Words', 3: 'Numbers', 4: 'Letters' };
+const levelNames = { 1: 'Bilder', 2: 'Wörter', 3: 'Zahlen', 4: 'Buchstaben' };
 
 // Selectable card-back (deck) colours for the Words / Numbers / Letters games.
 // Each game uses one colour at a time and the player can switch it from Settings,
 // just like the Pictures game switches colour via its themes.
 const deckPalette = {
-  purple: { name: 'Purple', gradient: 'linear-gradient(145deg, #8e24aa, #6a1b9a, #ab47bc)', border: '#ce93d8' },
-  teal:   { name: 'Teal',   gradient: 'linear-gradient(145deg, #00897b, #00695c, #26a69a)', border: '#80cbc4' },
-  orange: { name: 'Orange', gradient: 'linear-gradient(145deg, #fb8c00, #ef6c00, #ffa726)', border: '#ffcc80' }
+  purple: { name: 'Lila',    gradient: 'linear-gradient(145deg, #8e24aa, #6a1b9a, #ab47bc)', border: '#ce93d8' },
+  teal:   { name: 'Türkis',  gradient: 'linear-gradient(145deg, #00897b, #00695c, #26a69a)', border: '#80cbc4' },
+  orange: { name: 'Orange',  gradient: 'linear-gradient(145deg, #fb8c00, #ef6c00, #ffa726)', border: '#ffcc80' }
 };
 
 // Default deck colour per non-picture level (distinct, but player-switchable)
@@ -1208,15 +1281,76 @@ const Speech = {
   }
 };
 
-// What a card should say when flipped (Numbers speak German).
+// What a card should say when flipped — everything is spoken in German.
 function cardSpeech(item) {
-  if (item.isJoker) return { text: 'Free!', lang: 'en-US' };
+  if (item.isJoker) return { text: 'Bonus!', lang: 'de-DE' };
   if (currentLevel === 3) {
     const n = item.content.name;
     return { text: germanNumbers[n] || n, lang: 'de-DE' };
   }
-  if (currentLevel === 4) return { text: item.content.name.toUpperCase(), lang: 'en-US' };
-  return { text: item.content.name, lang: 'en-US' };
+  if (currentLevel === 4) return { text: item.content.name.toUpperCase(), lang: 'de-DE' };
+  return { text: item.content.name, lang: 'de-DE' };
+}
+
+// ═══ FAMILY VOICE BANK (IndexedDB + MediaRecorder) ═══
+// Parents record each word once in their own voice; the game then plays that
+// real native speaker instead of the synthetic voice. TTS is only a fallback.
+const VoiceBank = {
+  db: null,
+  cache: {},          // word -> object URL (loaded at startup)
+  supported: typeof window !== 'undefined' && !!(navigator.mediaDevices && window.MediaRecorder && window.indexedDB),
+  open() {
+    return new Promise((resolve) => {
+      if (!window.indexedDB) return resolve(null);
+      const req = indexedDB.open('maya-voicebank', 1);
+      req.onupgradeneeded = () => { req.result.createObjectStore('clips'); };
+      req.onsuccess = () => { this.db = req.result; resolve(this.db); };
+      req.onerror = () => resolve(null);
+    });
+  },
+  key(word) { return String(word).trim().toLowerCase(); },
+  async loadAll() {
+    if (!this.db) await this.open();
+    if (!this.db) return;
+    const tx = this.db.transaction('clips', 'readonly').objectStore('clips');
+    const keysReq = tx.getAllKeys();
+    const valsReq = tx.getAll();
+    await new Promise(res => { valsReq.onsuccess = res; valsReq.onerror = res; });
+    const keys = keysReq.result || [], vals = valsReq.result || [];
+    keys.forEach((k, i) => { if (vals[i]) this.cache[k] = URL.createObjectURL(vals[i]); });
+  },
+  async save(word, blob) {
+    if (!this.db) await this.open();
+    if (!this.db) return false;
+    const k = this.key(word);
+    await new Promise((res, rej) => {
+      const tx = this.db.transaction('clips', 'readwrite');
+      tx.objectStore('clips').put(blob, k);
+      tx.oncomplete = res; tx.onerror = rej;
+    });
+    if (this.cache[k]) URL.revokeObjectURL(this.cache[k]);
+    this.cache[k] = URL.createObjectURL(blob);
+    return true;
+  },
+  has(word) { return !!this.cache[this.key(word)]; },
+  count() { return Object.keys(this.cache).length; },
+  play(word) {
+    const url = this.cache[this.key(word)];
+    if (!url) return false;
+    try {
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      const a = new Audio(url);
+      a.play().catch(() => {});
+      return true;
+    } catch (e) { return false; }
+  }
+};
+
+// Speak a word: the family's own recording wins; synthetic voice is fallback.
+function speakWord(text, lang) {
+  if (!Speech.enabled) return;
+  if (VoiceBank.play(text)) return;
+  Speech.say(text, lang || 'de-DE');
 }
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
@@ -1314,8 +1448,8 @@ function updateMenuStars() {
   const total = Storage.totalStars();
   const max = Storage.maxStars();
   document.getElementById('totalStars').innerHTML = total > 0
-    ? `${svgStar(true, 22)} ${total} / ${max} stars collected`
-    : 'Collect stars by completing games!';
+    ? `${svgStar(true, 22)} ${total} / ${max} Sterne gesammelt`
+    : 'Sammle Sterne, indem du Spiele schaffst!';
   for (let l = 1; l <= 4; l++) {
     document.getElementById(`menu-stars-${l}`).innerHTML = renderStars(Storage.bestForLevel(l));
   }
@@ -1331,7 +1465,7 @@ function updateDifficultyStars() {
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // SETTINGS
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
-function openSettings() { Sound.click(); updateSettingsSections(); renderVoiceControls(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
+function openSettings() { Sound.click(); updateSettingsSections(); renderVoiceControls(); updateRecorderStatus(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
 
 // German voice picker + guidance. Lets the parent choose the most natural
 // German voice their device has, and explains how to add Apple's free
@@ -1347,9 +1481,9 @@ function renderVoiceControls() {
     // No German voice on this device → numbers would sound wrong/robotic.
     row.style.display = 'none';
     hint.style.display = '';
-    hint.innerHTML = 'For a natural German number voice, add it on your iPhone: ' +
-      '<b>Settings → Accessibility → Spoken Content → Voices → German</b>, then pick ' +
-      '<b>“Anna”</b> and tap the cloud to download. Reload this page afterwards.';
+    hint.innerHTML = 'Für eine natürliche deutsche Stimme auf dem iPhone: ' +
+      '<b>Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch</b>, ' +
+      'dort <b>„Anna“</b> wählen und über das Wolken-Symbol laden. Danach diese Seite neu laden.';
     return;
   }
   // Sort best-first so the default selection is the most natural voice.
@@ -1365,8 +1499,9 @@ function renderVoiceControls() {
   });
   row.style.display = '';
   hint.style.display = '';
-  hint.innerHTML = 'Hear a robot? Choose another voice above, or install Apple’s native ' +
-    '<b>“Anna (Enhanced)”</b> voice: <b>Settings → Accessibility → Spoken Content → Voices → German</b>.';
+  hint.innerHTML = 'Klingt es wie ein Roboter? Wähle oben eine andere Stimme, oder lade Apples natürliche ' +
+    'Stimme <b>„Anna (Premium)“</b>: <b>Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch</b>. ' +
+    'Noch besser: Nimm die Wörter unten selbst auf! 🎤';
 }
 
 function selectGermanVoice() {
@@ -1377,6 +1512,122 @@ function selectGermanVoice() {
   s.germanVoice = select.value;
   Storage.saveSettings(s);
   Speech.say('eins, zwei, drei', 'de-DE'); // preview the chosen voice
+}
+
+// ═══ VOICE RECORDER UI ═══
+const recorderTabs = {
+  zahlen:     { label: 'Zahlen',     words: () => Object.values(germanNumbers) },
+  buchstaben: { label: 'ABC',        words: () => letters.map(l => l.upper) },
+  woerter:    { label: 'Wörter',     words: () => words.map(w => w.name) },
+  bilder:     { label: 'Bilder',     words: () => [...new Set(Object.values(themes).flatMap(t => t.characters.map(c => c.name)))] }
+};
+let recTab = 'zahlen', recIndex = 0, recRecording = false;
+let recMedia = null, recStream = null, recChunks = [];
+
+function updateRecorderStatus() {
+  const el = document.getElementById('recorderStatus');
+  if (!el) return;
+  const n = VoiceBank.count();
+  el.style.display = n > 0 ? '' : 'none';
+  el.innerHTML = n > 0 ? `✅ <b>${n}</b> Wörter mit Familienstimme aufgenommen` : '';
+}
+
+function openRecorder() {
+  Sound.click();
+  if (!VoiceBank.supported) {
+    alert('Aufnahme wird von diesem Browser leider nicht unterstützt.');
+    return;
+  }
+  closeSettings();
+  recIndex = 0;
+  renderRecorderTabs();
+  renderRecorder();
+  document.getElementById('recorderPanel').classList.add('open');
+  document.getElementById('recorderOverlay').classList.add('open');
+}
+
+function closeRecorder() {
+  stopRecordingNow();
+  if (recStream) { recStream.getTracks().forEach(t => t.stop()); recStream = null; }
+  document.getElementById('recorderPanel').classList.remove('open');
+  document.getElementById('recorderOverlay').classList.remove('open');
+  updateRecorderStatus();
+}
+
+function renderRecorderTabs() {
+  const bar = document.getElementById('recorderTabs');
+  bar.innerHTML = '';
+  Object.entries(recorderTabs).forEach(([key, t]) => {
+    const btn = document.createElement('button');
+    btn.className = `recorder-tab${key === recTab ? ' active' : ''}`;
+    btn.textContent = t.label;
+    btn.onclick = () => { Sound.click(); recTab = key; recIndex = 0; renderRecorderTabs(); renderRecorder(); };
+    bar.appendChild(btn);
+  });
+}
+
+function recorderWords() { return recorderTabs[recTab].words(); }
+function recorderCurrentWord() { return recorderWords()[recIndex]; }
+
+function renderRecorder() {
+  const list = recorderWords();
+  const word = list[recIndex];
+  const done = list.filter(w => VoiceBank.has(w)).length;
+  document.getElementById('recorderWord').innerHTML =
+    `${word} ${VoiceBank.has(word) ? '<span class="rec-check">✅</span>' : ''}`;
+  document.getElementById('recorderProgress').textContent =
+    `${recIndex + 1} / ${list.length} · ${done} aufgenommen`;
+  document.getElementById('recPlayBtn').disabled = !VoiceBank.has(word);
+  if (!recRecording) {
+    document.getElementById('recorderState').textContent = VoiceBank.has(word)
+      ? 'Schon aufgenommen – nochmal aufnehmen oder weiter.'
+      : 'Tippe auf den roten Knopf und sprich das Wort.';
+  }
+}
+
+function recorderPrev() { Sound.click(); stopRecordingNow(); recIndex = (recIndex - 1 + recorderWords().length) % recorderWords().length; renderRecorder(); }
+function recorderNext() { Sound.click(); stopRecordingNow(); recIndex = (recIndex + 1) % recorderWords().length; renderRecorder(); }
+function recorderPlay() { Sound.click(); VoiceBank.play(recorderCurrentWord()); }
+
+function stopRecordingNow() {
+  if (recMedia && recMedia.state === 'recording') recMedia.stop();
+  recRecording = false;
+  const btn = document.getElementById('recBtn');
+  if (btn) { btn.classList.remove('recording'); btn.textContent = '●'; }
+}
+
+async function recorderToggle() {
+  if (recRecording) { stopRecordingNow(); return; }
+  try {
+    if (!recStream) recStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    document.getElementById('recorderState').textContent =
+      'Kein Mikrofon-Zugriff. Bitte in Safari erlauben (Einstellungen → Safari → Mikrofon).';
+    return;
+  }
+  const word = recorderCurrentWord();
+  // iOS Safari records audio/mp4; other browsers use webm/opus
+  const mime = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm']
+    .find(m => window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
+  recChunks = [];
+  recMedia = new MediaRecorder(recStream, mime ? { mimeType: mime } : undefined);
+  recMedia.ondataavailable = (e) => { if (e.data && e.data.size) recChunks.push(e.data); };
+  recMedia.onstop = async () => {
+    const blob = new Blob(recChunks, { type: recMedia.mimeType || 'audio/mp4' });
+    if (blob.size > 200) {  // ignore empty takes
+      await VoiceBank.save(word, blob);
+      VoiceBank.play(word);  // instant preview
+    }
+    renderRecorder();
+  };
+  recMedia.start();
+  recRecording = true;
+  const btn = document.getElementById('recBtn');
+  btn.classList.add('recording');
+  btn.textContent = '■';
+  document.getElementById('recorderState').textContent = `Sprich jetzt: „${word}“ – zum Stoppen nochmal tippen.`;
+  // Safety: a single word never needs more than 4 seconds
+  setTimeout(() => { if (recRecording && recMedia && recMedia.state === 'recording') stopRecordingNow(); }, 4000);
 }
 function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); document.getElementById('settingsOverlay').classList.remove('open'); }
 function toggleSound() {
@@ -1391,7 +1642,7 @@ function toggleVoice() {
   const s = Storage.getSettings();
   s.voice = Speech.enabled;
   Storage.saveSettings(s);
-  if (Speech.enabled) { Speech.init(); Speech.say('Hello!', 'en-US'); }
+  if (Speech.enabled) { Speech.init(); Speech.say('Hallo!', 'de-DE'); }
   renderVoiceControls();
 }
 function resetProgress() {
@@ -1459,7 +1710,7 @@ function updateSettingsSections() {
   if (isPictures) {
     renderThemePicker();
   } else {
-    document.getElementById('colorSectionLabel').textContent = `${levelNames[currentLevel]} Colour`;
+    document.getElementById('colorSectionLabel').textContent = `Kartenfarbe (${levelNames[currentLevel]})`;
     renderColorPicker();
   }
 }
@@ -1580,7 +1831,7 @@ function useHint() {
   updateHintBtn();
   // A hint costs 2 moves so it can't be used to game the star rating
   moveCount += 2;
-  document.getElementById('moveCounter').textContent = `Moves: ${moveCount}`;
+  document.getElementById('moveCounter').textContent = `Züge: ${moveCount}`;
   locked = true;
   cards.forEach(c => { if (!c.matched) c.el.classList.add('flipped'); });
   setTimeout(() => {
@@ -1595,7 +1846,7 @@ function useHint() {
 const hintSvg = '<svg viewBox="0 0 20 20" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><path d="M10,2 C6.5,2 4,4.8 4,8 C4,10.5 5.5,12 7,13 L7,15 L13,15 L13,13 C14.5,12 16,10.5 16,8 C16,4.8 13.5,2 10,2Z" fill="#ffd54f" stroke="#f9a825" stroke-width="1"/><rect x="7" y="15.5" width="6" height="2" rx="1" fill="#f9a825"/><line x1="10" y1="6" x2="10" y2="10" stroke="#f57f17" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="5" r="1" fill="#f57f17"/></svg>';
 function updateHintBtn() {
   const btn = document.getElementById('hintBtn');
-  btn.innerHTML = `${hintSvg} Hint (${hintsRemaining})`;
+  btn.innerHTML = `${hintSvg} Tipp (${hintsRemaining})`;
   btn.disabled = hintsRemaining <= 0;
 }
 
@@ -1609,7 +1860,7 @@ function flipCard(index) {
   if (!card || card.flipped || card.matched) return;
 
   Sound.flip();
-  Speech.say(card.speakText, card.speakLang);
+  speakWord(card.speakText, card.speakLang);
   card.flipped = true;
   card.el.classList.add('flipped');
 
@@ -1617,7 +1868,7 @@ function flipCard(index) {
   if (card.isJoker) {
     const savedFlipped = [...flippedCards];
     moveCount++;
-    document.getElementById('moveCounter').textContent = `Moves: ${moveCount}`;
+    document.getElementById('moveCounter').textContent = `Züge: ${moveCount}`;
     locked = true;
     setTimeout(() => {
       Sound.match();
@@ -1642,7 +1893,7 @@ function flipCard(index) {
 
   if (flippedCards.length === 2) {
     moveCount++;
-    document.getElementById('moveCounter').textContent = `Moves: ${moveCount}`;
+    document.getElementById('moveCounter').textContent = `Züge: ${moveCount}`;
     locked = true;
     const [a, b] = flippedCards;
 
@@ -1689,15 +1940,15 @@ function flipCard(index) {
 function showWin(stars) {
   const overlay = document.getElementById('winOverlay');
   overlay.classList.add('show');
-  const winTitles3 = ['Amazing!', 'You did it!', 'Super star!', 'Wonderful!', 'Brilliant!'];
-  const winTitles2 = ['Great job!', 'Well done!', 'You did it!', 'Awesome!'];
-  const winTitles1 = ['You did it!', 'Good try!', 'Nice work!'];
+  const winTitles3 = ['Fantastisch!', 'Super gemacht!', 'Du bist ein Star!', 'Wunderbar!', 'Spitze!'];
+  const winTitles2 = ['Toll gemacht!', 'Sehr gut!', 'Geschafft!', 'Klasse!'];
+  const winTitles1 = ['Geschafft!', 'Gut gemacht!', 'Weiter so!'];
   const titles = stars === 3 ? winTitles3 : stars === 2 ? winTitles2 : winTitles1;
   document.getElementById('winText').textContent = titles[Math.floor(Math.random() * titles.length)];
   const perfect = totalPairs;
   document.getElementById('winMoves').textContent = moveCount <= perfect
-    ? `Perfect! ${moveCount} moves!`
-    : `Done in ${moveCount} moves!`;
+    ? `Perfekt! ${moveCount} Züge!`
+    : `Geschafft in ${moveCount} Zügen!`;
   const sr = document.getElementById('starRating');
   sr.innerHTML = '';
   for (let i = 0; i < 3; i++) {
@@ -1726,7 +1977,7 @@ function startGame() {
   cards = [];
   moveCount = 0;
   hintsRemaining = 3;
-  document.getElementById('moveCounter').textContent = 'Moves: 0';
+  document.getElementById('moveCounter').textContent = 'Züge: 0';
   updateHintBtn();
   document.getElementById('winOverlay').classList.remove('show');
 
@@ -1766,7 +2017,7 @@ function startGame() {
       front = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="54" r="36" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/>
         <polygon points="50,22 56,40 76,40 60,52 66,70 50,60 34,70 40,52 24,40 44,40" fill="#ffd54f" stroke="#f9a825" stroke-width="1.5"/>
-        <text x="28" y="95" font-size="14" fill="#e65100" font-weight="bold" font-family="Arial,sans-serif">FREE!</text>
+        <text x="24" y="95" font-size="14" fill="#e65100" font-weight="bold" font-family="Arial,sans-serif">BONUS!</text>
       </svg>`;
     } else if (currentLevel === 1) {
       front = `${item.content.emoji ? `<div class="card-emoji">${item.content.emoji}</div>` : item.content.svg}<div class="card-label">${item.content.name}</div>`;
@@ -1877,9 +2128,9 @@ function emojiRenders(emoji) {
 }
 (function applyEmojiFallbacks() {
   const fallbacks = {
-    '🩰': { emoji: '💃', name: 'Dancing' },
-    '🛹': { emoji: '🛴', name: 'Scooter' },
-    '🪄': { emoji: '✨', name: 'Magic' }
+    '🩰': { emoji: '💃', name: 'Tanzen' },
+    '🛹': { emoji: '🛴', name: 'Roller' },
+    '🪄': { emoji: '✨', name: 'Magie' }
   };
   Object.values(themes).forEach(theme => {
     theme.characters.forEach(c => {
@@ -1892,6 +2143,9 @@ function emojiRenders(emoji) {
 loadSettings();
 updateMenuStars();
 initBgParticles();
+// Load the family's recorded words so cards can play them immediately
+VoiceBank.loadAll();
+if (!VoiceBank.supported) { const rs = document.getElementById('recorderSection'); if (rs) rs.style.display = 'none'; }
 
 // Disable all touch scrolling (kids accidentally scroll when tapping cards),
 // but keep the settings panel scrollable when it's taller than the screen

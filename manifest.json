@@ -1,7 +1,8 @@
 {
-  "name": "Maya's Game",
-  "short_name": "Maya's Game",
-  "description": "A gentle memory-matching game for little ones.",
+  "name": "Mayas Spiel",
+  "short_name": "Mayas Spiel",
+  "description": "Ein liebevolles Memory-Spiel für kleine Kinder – auf Deutsch.",
+  "lang": "de",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
