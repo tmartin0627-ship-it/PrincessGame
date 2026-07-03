@@ -1535,7 +1535,7 @@ function updateRecorderStatus() {
 function openRecorder() {
   Sound.click();
   if (!VoiceBank.supported) {
-    alert('Aufnahme wird von diesem Browser leider nicht unterstützt.');
+    alert('Aufnahme geht in diesem Browser nicht. Bitte öffne die Seite direkt in Safari (nicht in einer App wie WhatsApp oder Mail).');
     return;
   }
   closeSettings();
@@ -1596,13 +1596,29 @@ function stopRecordingNow() {
   if (btn) { btn.classList.remove('recording'); btn.textContent = '●'; }
 }
 
+function recorderError(msg) {
+  const el = document.getElementById('recorderState');
+  if (el) el.innerHTML = msg;
+}
+
 async function recorderToggle() {
   if (recRecording) { stopRecordingNow(); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    recorderError('Dieser Browser hat keinen Mikrofon-Zugriff. Bitte die Seite direkt in <b>Safari</b> öffnen (nicht in einer App).');
+    return;
+  }
   try {
-    if (!recStream) recStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (!recStream || !recStream.active) {
+      recStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
   } catch (e) {
-    document.getElementById('recorderState').textContent =
-      'Kein Mikrofon-Zugriff. Bitte in Safari erlauben (Einstellungen → Safari → Mikrofon).';
+    if (e && (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError')) {
+      recorderError('Mikrofon nicht erlaubt. In Safari: <b>„aA“ in der Adressleiste → Website-Einstellungen → Mikrofon → Erlauben</b>. Oder: iPhone-Einstellungen → Apps → Safari → Mikrofon.');
+    } else if (e && e.name === 'NotFoundError') {
+      recorderError('Kein Mikrofon gefunden. Bitte direkt in Safari auf dem iPhone öffnen.');
+    } else {
+      recorderError(`Mikrofon-Fehler (${e && e.name ? e.name : 'unbekannt'}). Bitte Seite neu laden und nochmal versuchen.`);
+    }
     return;
   }
   const word = recorderCurrentWord();
@@ -1610,22 +1626,36 @@ async function recorderToggle() {
   const mime = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm']
     .find(m => window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
   recChunks = [];
-  recMedia = new MediaRecorder(recStream, mime ? { mimeType: mime } : undefined);
+  try {
+    recMedia = new MediaRecorder(recStream, mime ? { mimeType: mime } : undefined);
+  } catch (e) {
+    try { recMedia = new MediaRecorder(recStream); }
+    catch (e2) { recorderError(`Aufnahme-Fehler (${e2 && e2.name ? e2.name : 'MediaRecorder'}).`); return; }
+  }
   recMedia.ondataavailable = (e) => { if (e.data && e.data.size) recChunks.push(e.data); };
+  recMedia.onerror = (e) => { recorderError(`Aufnahme-Fehler (${e && e.error && e.error.name ? e.error.name : 'unbekannt'}).`); stopRecordingNow(); };
   recMedia.onstop = async () => {
     const blob = new Blob(recChunks, { type: recMedia.mimeType || 'audio/mp4' });
-    if (blob.size > 200) {  // ignore empty takes
-      await VoiceBank.save(word, blob);
-      VoiceBank.play(word);  // instant preview
+    if (blob.size > 200) {
+      const ok = await VoiceBank.save(word, blob);
+      renderRecorder();
+      // iOS blocks autoplay outside a tap, so don't rely on an automatic
+      // preview — tell the parent explicitly and let them tap ▶.
+      recorderError(ok
+        ? `✅ „${word}“ gespeichert! Tippe <b>▶</b> zum Anhören.`
+        : 'Speichern fehlgeschlagen. Bitte nochmal versuchen.');
+    } else {
+      renderRecorder();
+      recorderError('Das war zu kurz. Bitte nochmal aufnehmen und deutlich sprechen.');
     }
-    renderRecorder();
   };
-  recMedia.start();
+  // Collect data continuously so a quick stop still captures audio
+  try { recMedia.start(250); } catch (e) { recMedia.start(); }
   recRecording = true;
   const btn = document.getElementById('recBtn');
   btn.classList.add('recording');
   btn.textContent = '■';
-  document.getElementById('recorderState').textContent = `Sprich jetzt: „${word}“ – zum Stoppen nochmal tippen.`;
+  recorderError(`🔴 Sprich jetzt: <b>„${word}“</b> – zum Stoppen nochmal tippen.`);
   // Safety: a single word never needs more than 4 seconds
   setTimeout(() => { if (recRecording && recMedia && recMedia.state === 'recording') stopRecordingNow(); }, 4000);
 }
