@@ -1327,7 +1327,14 @@ function cardSpeech(item) {
     const n = item.content.name;
     return { text: germanNumbers[n] || n, lang: 'de-DE' };
   }
-  if (currentLevel === 4) return { text: item.content.name.toUpperCase(), lang: 'de-DE' };
+  if (currentLevel === 4) {
+    // Say "großes K" / "kleines k" so the child hears which card it is.
+    // The letter goes in lowercase into the spoken text — some voices would
+    // otherwise announce a lone capital as "großes K" a second time.
+    const n = item.content.name;
+    const isUpper = n === n.toUpperCase();
+    return { text: `${isUpper ? 'großes' : 'kleines'} ${n.toLowerCase()}`, lang: 'de-DE' };
+  }
   return { text: item.content.name, lang: 'de-DE' };
 }
 
@@ -1556,7 +1563,7 @@ function selectGermanVoice() {
 // ═══ VOICE RECORDER UI ═══
 const recorderTabs = {
   zahlen:     { label: 'Zahlen',     words: () => Object.values(germanNumbers) },
-  buchstaben: { label: 'ABC',        words: () => letters.map(l => l.upper) },
+  buchstaben: { label: 'ABC',        words: () => letters.flatMap(l => [`großes ${l.upper}`, `kleines ${l.lower}`]) },
   woerter:    { label: 'Wörter',     words: () => words.map(w => w.name) },
   bilder:     { label: 'Bilder',     words: () => [...new Set(Object.values(themes).flatMap(t => t.characters.map(c => c.name)))] }
 };
