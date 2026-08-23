@@ -613,6 +613,128 @@
   }
   .voice-hint b { color: var(--pink-dark); }
 
+  /* ─── Math Game ──────────────────────────── */
+  .math-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    max-width: 650px;
+    padding: 6px 4px;
+    margin-bottom: 10px;
+  }
+  .math-progress { font-size: 1rem; font-weight: 700; color: var(--purple); }
+  .math-repeat {
+    padding: 10px 16px;
+    border-radius: 50px;
+    border: 2px solid var(--purple-light);
+    background: white;
+    color: var(--purple);
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-height: 44px;
+    font-family: inherit;
+  }
+  .math-repeat:active { transform: scale(0.94); }
+
+  .math-question {
+    width: 100%;
+    max-width: 650px;
+    background: rgba(255,255,255,0.75);
+    border-radius: 24px;
+    padding: 18px 14px;
+    margin-bottom: 18px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(173,20,87,0.1);
+  }
+  .math-visual { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .math-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    max-width: 44%;
+    padding: 8px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.75);
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+  .math-group:active { transform: scale(0.96); }
+  /* A subtraction shows one wide group instead of two side by side */
+  .math-group.solo { max-width: 92%; }
+  .math-item { font-size: clamp(1.5rem, 6vw, 2.3rem); line-height: 1.1; position: relative; display: inline-block; }
+  /* Fade only the emoji itself — the cross-out line must stay fully opaque */
+  .math-item-face { display: inline-block; }
+  .math-item.struck .math-item-face { opacity: 0.35; filter: grayscale(0.7); }
+  .math-item.struck::after {
+    content: '';
+    position: absolute;
+    left: -2px; right: -2px; top: 46%;
+    height: 4px;
+    background: #e53935;
+    border-radius: 2px;
+    transform: rotate(-20deg);
+    box-shadow: 0 0 0 1.5px rgba(255,255,255,0.9);
+  }
+  .math-op { font-size: clamp(1.6rem, 7vw, 2.4rem); font-weight: 800; color: var(--purple); }
+  .math-caption {
+    margin-top: 12px;
+    font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+    font-weight: 800;
+    color: var(--pink-dark);
+    letter-spacing: 1px;
+  }
+  .math-equation { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .math-num {
+    font-size: clamp(2.2rem, 10vw, 3.4rem);
+    font-weight: 800;
+    color: var(--pink-dark);
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+  .math-num:active { transform: scale(0.92); }
+  .math-unknown { color: var(--purple); cursor: default; }
+
+  .math-answers { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .math-answer {
+    width: min(26vw, 108px);
+    height: min(26vw, 108px);
+    border-radius: 24px;
+    border: 3px solid var(--purple-light);
+    background: white;
+    color: var(--pink-dark);
+    font-size: clamp(2rem, 8vw, 2.9rem);
+    font-weight: 800;
+    font-family: inherit;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(173,20,87,0.14);
+    transition: transform 0.15s, background 0.25s;
+  }
+  .math-answer:active { transform: scale(0.94); }
+  .math-answer.correct {
+    background: linear-gradient(135deg, #a5d6a7, #66bb6a);
+    color: white;
+    border-color: #43a047;
+  }
+  .math-answer.wrong { animation: mathShake 0.4s ease; border-color: #ef5350; background: #ffebee; }
+  @keyframes mathShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .math-answer:disabled { opacity: 0.4; }
+  .math-feedback {
+    margin-top: 16px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #43a047;
+    min-height: 1.6em;
+    text-align: center;
+  }
+
   /* ─── Install Banner ─────────────────────── */
   .install-banner {
     position: fixed;
@@ -942,6 +1064,11 @@
       <div class="level-card-title">Buchstaben</div>
       <div class="level-card-stars" id="menu-stars-4"></div>
     </div>
+    <div class="level-card" onclick="selectLevel(5)">
+      <div class="level-card-icon"><svg viewBox="0 0 80 80" width="64" height="64"><circle cx="25" cy="26" r="15" fill="#f48fb1" stroke="#e91e63" stroke-width="2"/><path d="M25,18 L25,34 M17,26 L33,26" stroke="white" stroke-width="4.5" stroke-linecap="round"/><circle cx="55" cy="26" r="15" fill="#90caf9" stroke="#1565c0" stroke-width="2"/><path d="M47,26 L63,26" stroke="white" stroke-width="4.5" stroke-linecap="round"/><text x="40" y="62" text-anchor="middle" fill="#7b1fa2" font-weight="bold" font-size="20" font-family="sans-serif">1+2</text><polygon points="40,66 41.6,70.5 46.4,70.5 42.5,73.4 44,78 40,75.2 36,78 37.5,73.4 33.6,70.5 38.4,70.5" fill="#ffd54f"/></svg></div>
+      <div class="level-card-title">Rechnen</div>
+      <div class="level-card-stars" id="menu-stars-5"></div>
+    </div>
   </div>
   <button class="menu-settings-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16" style="vertical-align:-2px;margin-right:4px"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Einstellungen</button>
 </div>
@@ -969,13 +1096,34 @@
   <div class="grid cols-3" id="grid"></div>
 </div>
 
+<!-- ═══ MATH SCREEN ═══ -->
+<div id="mathScreen" class="screen hidden">
+  <div class="game-header">
+    <button class="back-btn" onclick="showMenu()"><svg viewBox="0 0 20 20" width="18" height="18"><path d="M13,4 L7,10 L13,16" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <h2 class="game-title">Rechnen</h2>
+    <button class="gear-btn" onclick="openSettings()"><svg viewBox="0 0 20 20" width="16" height="16"><circle cx="10" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10,2 L10,5 M10,15 L10,18 M2,10 L5,10 M15,10 L18,10 M4.2,4.2 L6.3,6.3 M13.7,13.7 L15.8,15.8 M4.2,15.8 L6.3,13.7 M13.7,6.3 L15.8,4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="difficulty">
+    <button class="diff-btn active" data-level="easy" onclick="setDifficulty('easy')">Leicht <span class="diff-stars" id="mdiff-stars-easy"></span></button>
+    <button class="diff-btn" data-level="medium" onclick="setDifficulty('medium')">Mittel <span class="diff-stars" id="mdiff-stars-medium"></span></button>
+    <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">Schwer <span class="diff-stars" id="mdiff-stars-hard"></span></button>
+  </div>
+  <div class="math-hud">
+    <div class="math-progress" id="mathProgress">Aufgabe 1 / 8</div>
+    <button class="math-repeat" onclick="speakMathQuestion()">🔊 Nochmal hören</button>
+  </div>
+  <div class="math-question" id="mathQuestion"></div>
+  <div class="math-answers" id="mathAnswers"></div>
+  <div class="math-feedback" id="mathFeedback"></div>
+</div>
+
 <!-- ‚ïê‚ïê‚ïê WIN OVERLAY ‚ïê‚ïê‚ïê -->
 <div class="win-overlay" id="winOverlay">
   <div class="win-emoji"><svg viewBox="0 0 100 100" width="80" height="80"><defs><linearGradient id="crownG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffd54f"/><stop offset="100%" stop-color="#f9a825"/></linearGradient></defs><polygon points="30,55 35,25 42,42 50,18 58,42 65,25 70,55" fill="url(#crownG)" stroke="#e65100" stroke-width="1.5"/><rect x="30" y="55" width="40" height="8" rx="3" fill="url(#crownG)" stroke="#e65100" stroke-width="1"/><circle cx="50" cy="22" r="4" fill="#e91e63"/><circle cx="38" cy="30" r="3" fill="#7c4dff"/><circle cx="62" cy="30" r="3" fill="#00bcd4"/><polygon points="50,70 52,76 58,76 53,80 55,86 50,82 45,86 47,80 42,76 48,76" fill="#ffd54f"><animateTransform attributeName="transform" type="rotate" values="0 50 78;15 50 78;-15 50 78;0 50 78" dur="2s" repeatCount="indefinite"/></polygon><circle cx="25" cy="30" r="2.5" fill="#e91e63" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.5s" repeatCount="indefinite"/></circle><circle cx="75" cy="35" r="2" fill="#ffd54f" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite"/></circle><circle cx="20" cy="50" r="1.5" fill="#ce93d8" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.3s" repeatCount="indefinite"/></circle><circle cx="80" cy="48" r="2" fill="#42a5f5" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.6s" repeatCount="indefinite"/></circle><polygon points="22,18 23,21 26,21 23.5,23 24.5,26 22,24 19.5,26 20.5,23 18,21 21,21" fill="#ffd54f" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite"/></polygon><polygon points="78,20 79,23 82,23 79.5,25 80.5,28 78,26 75.5,28 76.5,25 74,23 77,23" fill="#f48fb1" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.7s" repeatCount="indefinite"/></polygon></svg></div>
   <div class="win-text" id="winText">Geschafft!</div>
   <div class="win-moves" id="winMoves"></div>
   <div class="star-rating" id="starRating"></div>
-  <button class="win-btn" onclick="startGame()">Nochmal!</button>
+  <button class="win-btn" onclick="restartCurrent()">Nochmal!</button>
   <button class="win-btn secondary" onclick="showMenu()">Menü</button>
 </div>
 
@@ -1191,7 +1339,16 @@ const difficultyConfig = {
   4: { easy: { pairs: 3, cols: 3 }, medium: { pairs: 4, cols: 3 }, hard: { pairs: 6, cols: 4 } }
 };
 
-const levelNames = { 1: 'Bilder', 2: 'Wörter', 3: 'Zahlen', 4: 'Buchstaben' };
+const levelNames = { 1: 'Bilder', 2: 'Wörter', 3: 'Zahlen', 4: 'Buchstaben', 5: 'Rechnen' };
+
+// Rechnen (level 5): simple addition/subtraction. Every round mixes questions
+// shown as counted items with questions shown as digits.
+const mathConfig = {
+  easy:   { questions: 8, max: 5,  ops: ['+'],       digitsOnly: false },
+  medium: { questions: 8, max: 10, ops: ['+', '-'],  digitsOnly: false },
+  hard:   { questions: 8, max: 10, ops: ['+', '-'],  digitsOnly: true }
+};
+const mathItems = ['🍎', '🍓', '⭐', '🎈', '🌸', '🐞', '🍌', '🐥'];
 
 // Selectable card-back (deck) colours for the Words / Numbers / Letters games.
 // Each game uses one colour at a time and the player can switch it from Settings,
@@ -1414,7 +1571,7 @@ const Storage = {
   },
   bestForLevel(lvl) { return Math.max(this.getStars(lvl,'easy'), this.getStars(lvl,'medium'), this.getStars(lvl,'hard')); },
   totalStars() { return Object.values(this.getProgress()).reduce((s,v) => s + (v.stars||0), 0); },
-  maxStars() { return 36; }, // 4 levels √ó 3 difficulties √ó 3 stars
+  maxStars() { return 45; }, // 5 levels × 3 difficulties × 3 stars
   getSettings() { try { return JSON.parse(localStorage.getItem(this.SKEY)) || { sound: true, voice: true, theme: 'princess' }; } catch { return { sound: true, voice: true, theme: 'princess' }; } },
   saveSettings(s) { localStorage.setItem(this.SKEY, JSON.stringify(s)); },
   reset() { localStorage.removeItem(this.KEY); }
@@ -1475,6 +1632,7 @@ function showMenu() {
   Sound.init(); Sound.click();
   document.getElementById('menuScreen').classList.replace('hidden','visible');
   document.getElementById('gameScreen').classList.replace('visible','hidden');
+  document.getElementById('mathScreen').classList.replace('visible','hidden');
   document.getElementById('winOverlay').classList.remove('show');
   updateMenuStars();
 }
@@ -1483,6 +1641,15 @@ function selectLevel(lvl) {
   Sound.init(); Sound.click();
   currentLevel = lvl;
   document.getElementById('menuScreen').classList.replace('visible','hidden');
+  document.getElementById('winOverlay').classList.remove('show');
+  // Keep both difficulty bars in sync with the remembered difficulty
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.level === currentDifficulty));
+  if (lvl === 5) {
+    document.getElementById('mathScreen').classList.replace('hidden','visible');
+    updateDifficultyStars();
+    startMath();
+    return;
+  }
   document.getElementById('gameScreen').classList.replace('hidden','visible');
   document.getElementById('gameTitle').textContent = levelNames[lvl];
   updateDifficultyStars();
@@ -1490,13 +1657,16 @@ function selectLevel(lvl) {
   startGame();
 }
 
+// The win overlay is shared, so "Nochmal!" restarts whichever game is running.
+function restartCurrent() { if (currentLevel === 5) startMath(); else startGame(); }
+
 function updateMenuStars() {
   const total = Storage.totalStars();
   const max = Storage.maxStars();
   document.getElementById('totalStars').innerHTML = total > 0
     ? `${svgStar(true, 22)} ${total} / ${max} Sterne gesammelt`
     : 'Sammle Sterne, indem du Spiele schaffst!';
-  for (let l = 1; l <= 4; l++) {
+  for (let l = 1; l <= 5; l++) {
     document.getElementById(`menu-stars-${l}`).innerHTML = renderStars(Storage.bestForLevel(l));
   }
 }
@@ -1504,7 +1674,12 @@ function updateMenuStars() {
 function updateDifficultyStars() {
   ['easy','medium','hard'].forEach(d => {
     const s = Storage.getStars(currentLevel, d);
-    document.getElementById(`diff-stars-${d}`).innerHTML = s > 0 ? renderStars(s, 14) : '';
+    const html = s > 0 ? renderStars(s, 14) : '';
+    // Both the memory board and the maths board have a difficulty bar
+    ['diff-stars-', 'mdiff-stars-'].forEach(prefix => {
+      const el = document.getElementById(prefix + d);
+      if (el) el.innerHTML = html;
+    });
   });
 }
 
@@ -1781,11 +1956,12 @@ function updateSettingsSections() {
   const colorSection = document.getElementById('colorSection');
   if (!themeSection || !colorSection) return;
   const isPictures = currentLevel === 1;
+  const isMath = currentLevel === 5; // Rechnen has no cards to recolour
   themeSection.style.display = isPictures ? '' : 'none';
-  colorSection.style.display = isPictures ? 'none' : '';
+  colorSection.style.display = (isPictures || isMath) ? 'none' : '';
   if (isPictures) {
     renderThemePicker();
-  } else {
+  } else if (!isMath) {
     document.getElementById('colorSectionLabel').textContent = `Kartenfarbe (${levelNames[currentLevel]})`;
     renderColorPicker();
   }
@@ -1834,7 +2010,7 @@ function setDifficulty(d) {
   Sound.init(); Sound.click();
   currentDifficulty = d;
   document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.level === d));
-  startGame();
+  restartCurrent();
 }
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
@@ -2014,6 +2190,13 @@ function flipCard(index) {
 // WIN SCREEN
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 function showWin(stars) {
+  const perfect = totalPairs;
+  renderWinOverlay(stars, moveCount <= perfect
+    ? `Perfekt! ${moveCount} Züge!`
+    : `Geschafft in ${moveCount} Zügen!`);
+}
+
+function renderWinOverlay(stars, subtitle) {
   const overlay = document.getElementById('winOverlay');
   overlay.classList.add('show');
   const winTitles3 = ['Fantastisch!', 'Super gemacht!', 'Du bist ein Star!', 'Wunderbar!', 'Spitze!'];
@@ -2021,10 +2204,7 @@ function showWin(stars) {
   const winTitles1 = ['Geschafft!', 'Gut gemacht!', 'Weiter so!'];
   const titles = stars === 3 ? winTitles3 : stars === 2 ? winTitles2 : winTitles1;
   document.getElementById('winText').textContent = titles[Math.floor(Math.random() * titles.length)];
-  const perfect = totalPairs;
-  document.getElementById('winMoves').textContent = moveCount <= perfect
-    ? `Perfekt! ${moveCount} Züge!`
-    : `Geschafft in ${moveCount} Zügen!`;
+  document.getElementById('winMoves').textContent = subtitle;
   const sr = document.getElementById('starRating');
   sr.innerHTML = '';
   for (let i = 0; i < 3; i++) {
@@ -2035,6 +2215,162 @@ function showWin(stars) {
     sr.appendChild(s);
   }
   updateDifficultyStars();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RECHNEN (maths game)
+// ═══════════════════════════════════════════════════════════════
+let mathQuestions = [], mathIndex = 0, mathWrong = 0, mathLocked = false, mathCurrent = null;
+
+function germanNumber(n) { return germanNumbers[String(n)] || String(n); }
+
+// Speaks a single number — a family recording is used when one exists.
+function speakNumber(n) { speakWord(germanNumber(n), 'de-DE'); }
+
+// Reads the whole task, e.g. "fünf minus zwei"
+function speakMathQuestion() {
+  if (!mathCurrent) return;
+  Sound.init();
+  const q = mathCurrent;
+  Speech.say(`${germanNumber(q.a)} ${q.op === '+' ? 'plus' : 'minus'} ${germanNumber(q.b)}`, 'de-DE');
+}
+
+function makeMathChoices(result, max) {
+  const set = new Set([result]);
+  let guard = 0;
+  while (set.size < 3 && guard++ < 50) {
+    const c = result + [-2, -1, 1, 2][Math.floor(Math.random() * 4)];
+    if (c >= 0 && c <= max + 2) set.add(c);
+  }
+  let fill = 0;
+  while (set.size < 3) set.add(fill++); // safety net for tiny ranges
+  return shuffle([...set]);
+}
+
+function makeMathQuestion(cfg, index) {
+  const op = cfg.ops[Math.floor(Math.random() * cfg.ops.length)];
+  let a, b, result;
+  if (op === '+') {
+    result = 2 + Math.floor(Math.random() * (cfg.max - 1)); // 2..max
+    a = 1 + Math.floor(Math.random() * (result - 1));       // 1..result-1
+    b = result - a;
+  } else {
+    a = 2 + Math.floor(Math.random() * (cfg.max - 1));      // 2..max
+    b = 1 + Math.floor(Math.random() * (a - 1));            // 1..a-1
+    result = a - b;
+  }
+  // Alternate the two presentations so both always show up in a round
+  const mode = cfg.digitsOnly ? 'digits' : (index % 2 === 0 ? 'items' : 'digits');
+  return {
+    a, b, op, result, mode,
+    emoji: mathItems[Math.floor(Math.random() * mathItems.length)],
+    choices: makeMathChoices(result, cfg.max)
+  };
+}
+
+function mathItemsHtml(emoji, n, struck) {
+  let h = '';
+  for (let i = 0; i < n; i++) {
+    h += `<span class="math-item${i >= n - struck ? ' struck' : ''}"><span class="math-item-face">${emoji}</span></span>`;
+  }
+  return h;
+}
+
+function renderMathQuestion() {
+  const q = mathCurrent;
+  const box = document.getElementById('mathQuestion');
+  const opSign = q.op === '+' ? '+' : '−';
+  if (q.mode === 'items') {
+    // Subtraction crosses the removed items out of a single group, the way
+    // it is drawn in Kindergarten workbooks.
+    const visual = q.op === '+'
+      ? `<span class="math-group" onclick="speakNumber(${q.a})">${mathItemsHtml(q.emoji, q.a, 0)}</span>
+         <span class="math-op">+</span>
+         <span class="math-group" onclick="speakNumber(${q.b})">${mathItemsHtml(q.emoji, q.b, 0)}</span>`
+      : `<span class="math-group solo" onclick="speakNumber(${q.a})">${mathItemsHtml(q.emoji, q.a, q.b)}</span>`;
+    box.innerHTML = `<div class="math-visual">${visual}</div>
+      <div class="math-caption">${q.a} ${opSign} ${q.b} = ?</div>`;
+  } else {
+    box.innerHTML = `<div class="math-equation">
+        <span class="math-num" onclick="speakNumber(${q.a})">${q.a}</span>
+        <span class="math-op">${opSign}</span>
+        <span class="math-num" onclick="speakNumber(${q.b})">${q.b}</span>
+        <span class="math-op">=</span>
+        <span class="math-num math-unknown">?</span>
+      </div>`;
+  }
+}
+
+function renderMathAnswers() {
+  const box = document.getElementById('mathAnswers');
+  box.innerHTML = '';
+  mathCurrent.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'math-answer';
+    btn.textContent = c;
+    btn.onclick = () => answerMath(c, btn);
+    box.appendChild(btn);
+  });
+}
+
+function showMathQuestion() {
+  mathCurrent = mathQuestions[mathIndex];
+  document.getElementById('mathProgress').textContent = `Aufgabe ${mathIndex + 1} / ${mathQuestions.length}`;
+  document.getElementById('mathFeedback').textContent = '';
+  renderMathQuestion();
+  renderMathAnswers();
+  setTimeout(speakMathQuestion, 400);
+}
+
+function answerMath(value, btn) {
+  if (mathLocked) return;
+  Sound.init();
+  speakNumber(value); // every tap says the number out loud in German
+  if (value === mathCurrent.result) {
+    mathLocked = true;
+    btn.classList.add('correct');
+    Sound.match();
+    createSparkles(btn);
+    const praise = ['Richtig!', 'Super!', 'Genau!', 'Toll!'];
+    document.getElementById('mathFeedback').textContent = praise[Math.floor(Math.random() * praise.length)];
+    document.querySelectorAll('.math-answer').forEach(b => { if (b !== btn) b.disabled = true; });
+    setTimeout(() => {
+      mathIndex++;
+      mathLocked = false;
+      if (mathIndex >= mathQuestions.length) finishMath();
+      else showMathQuestion();
+    }, 1500);
+  } else {
+    mathWrong++;
+    Sound.mismatch();
+    btn.classList.add('wrong');
+    document.getElementById('mathFeedback').textContent = 'Probier nochmal!';
+    setTimeout(() => { btn.classList.remove('wrong'); btn.disabled = true; }, 450);
+  }
+}
+
+function finishMath() {
+  const total = mathQuestions.length;
+  const stars = mathWrong <= 1 ? 3 : mathWrong <= 3 ? 2 : 1;
+  Storage.saveStars(5, currentDifficulty, stars);
+  renderWinOverlay(stars, mathWrong === 0
+    ? `Perfekt! Alle ${total} Aufgaben richtig!`
+    : `${total} Aufgaben geschafft!`);
+  Sound.win();
+  launchConfetti();
+}
+
+function startMath() {
+  Sound.init();
+  window.scrollTo(0, 0);
+  const cfg = mathConfig[currentDifficulty] || mathConfig.easy;
+  mathQuestions = [];
+  for (let i = 0; i < cfg.questions; i++) mathQuestions.push(makeMathQuestion(cfg, i));
+  mathIndex = 0;
+  mathWrong = 0;
+  mathLocked = false;
+  document.getElementById('winOverlay').classList.remove('show');
+  showMathQuestion();
 }
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê

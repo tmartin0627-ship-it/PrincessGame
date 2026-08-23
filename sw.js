@@ -1,7 +1,7 @@
 // Service worker: makes Mayas Spiel work fully offline.
 // Strategy: serve from cache instantly, refresh the cache in the background
 // so updates arrive on the next launch.
-const CACHE = 'mayas-spiel-v3';
+const CACHE = 'mayas-spiel-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
