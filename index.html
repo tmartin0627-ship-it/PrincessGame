@@ -298,6 +298,11 @@
     perspective: 1000px;
     justify-content: center;
   }
+  /* 3D board (board3d.js) — replaces the flat grid when WebGL is available */
+  .board3d { display: none; width: 100%; max-width: 820px; touch-action: none; }
+  .board3d canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  body.mode-3d .board3d { display: block; }
+  body.mode-3d #grid, body.mode-3d .scroll-btns { display: none; }
   .grid.cols-3 {
     grid-template-columns: repeat(3, min(28vw, 140px));
     grid-auto-rows: min(28vw, 140px);
@@ -1095,6 +1100,7 @@
     <button class="hint-btn" id="hintBtn" onclick="useHint()" title="Jeder Tipp kostet 2 Züge"><svg viewBox="0 0 20 20" width="14" height="14" style="vertical-align:-2px;margin-right:2px"><path d="M10,2 C6.5,2 4,4.8 4,8 C4,10.5 5.5,12 7,13 L7,15 L13,15 L13,13 C14.5,12 16,10.5 16,8 C16,4.8 13.5,2 10,2Z" fill="#ffd54f" stroke="#f9a825" stroke-width="1"/><rect x="7" y="15.5" width="6" height="2" rx="1" fill="#f9a825"/><line x1="10" y1="6" x2="10" y2="10" stroke="#f57f17" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="5" r="1" fill="#f57f17"/></svg> Tipp (3)</button>
   </div>
   <div class="grid cols-3" id="grid"></div>
+  <div class="board3d" id="board3d"></div>
 </div>
 
 <!-- ═══ MATH SCREEN ═══ -->
@@ -1143,6 +1149,13 @@
     <span>Vorlesen</span>
     <label class="toggle">
       <input type="checkbox" id="voiceToggle" checked onchange="toggleVoice()">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <div class="setting-row" id="view3dRow" style="display:none">
+    <span>3D-Ansicht</span>
+    <label class="toggle">
+      <input type="checkbox" id="view3dToggle" checked onchange="toggleView3d()">
       <span class="toggle-slider"></span>
     </label>
   </div>
@@ -1198,6 +1211,8 @@
   </div>
 </div>
 
+<script src="three.min.js"></script>
+<script src="board3d.js"></script>
 <script>
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // DATA
@@ -1815,7 +1830,7 @@ function updateDifficultyStars() {
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
 // SETTINGS
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
-function openSettings() { Sound.click(); updateSettingsSections(); renderVoiceControls(); updateRecorderStatus(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
+function openSettings() { Sound.click(); updateSettingsSections(); renderView3dControl(); renderVoiceControls(); updateRecorderStatus(); document.getElementById('settingsPanel').classList.add('open'); document.getElementById('settingsOverlay').classList.add('open'); }
 
 // German voice picker + guidance. Lets the parent choose the most natural
 // German voice their device has, and explains how to add Apple's free
@@ -2123,13 +2138,8 @@ function selectDeckColor(key) {
 
 // Recolour the backs of any cards currently on the board (live preview)
 function applyDeckColorToBoard() {
-  if (currentLevel === 1) return;
-  const deck = getLevelDeck(currentLevel);
-  if (!deck) return;
-  document.querySelectorAll('#grid .card-back').forEach(el => {
-    el.style.setProperty('--card-bg', deck.gradient);
-    el.style.setProperty('--card-border', deck.border);
-  });
+  if (currentLevel === 1 || currentLevel === 5 || !Board) return;
+  Board.refreshBacks(currentBackSpec());
 }
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
@@ -2214,10 +2224,10 @@ function useHint() {
   moveCount += 2;
   document.getElementById('moveCounter').textContent = `Züge: ${moveCount}`;
   locked = true;
-  cards.forEach(c => { if (!c.matched) c.el.classList.add('flipped'); });
+  cards.forEach((c, i) => { if (!c.matched) Board.flipUp(i); });
   setTimeout(() => {
-    cards.forEach(c => {
-      if (!c.matched) { c.flipped = false; c.el.classList.remove('flipped'); }
+    cards.forEach((c, i) => {
+      if (!c.matched) { c.flipped = false; Board.flipDown(i); }
     });
     flippedCards = [];
     locked = false;
@@ -2243,7 +2253,7 @@ function flipCard(index) {
   Sound.flip();
   speakWord(card.speakText, card.speakLang);
   card.flipped = true;
-  card.el.classList.add('flipped');
+  Board.flipUp(index);
 
   // Joker auto-matches on a single flip
   if (card.isJoker) {
@@ -2255,11 +2265,11 @@ function flipCard(index) {
       Sound.match();
       card.matched = true;
       matchedPairs++;
-      card.el.classList.add('matched');
-      createSparkles(card.el);
+      Board.match(index);
       flippedCards = savedFlipped;
       locked = false;
       if (matchedPairs === totalPairs) {
+        Board.celebrate();
         setTimeout(() => {
           const stars = calcStars(moveCount, totalPairs);
           Storage.saveStars(currentLevel, currentDifficulty, stars);
@@ -2284,15 +2294,14 @@ function flipCard(index) {
       cards[b].matched = true;
       matchedPairs++;
       setTimeout(() => {
-        cards[a].el.classList.add('matched');
-        cards[b].el.classList.add('matched');
-        createSparkles(cards[a].el);
-        createSparkles(cards[b].el);
+        Board.match(a);
+        Board.match(b);
       }, 300);
       flippedCards = [];
       locked = false;
 
       if (matchedPairs === totalPairs) {
+        Board.celebrate();
         setTimeout(() => {
           const stars = calcStars(moveCount, totalPairs);
           Storage.saveStars(currentLevel, currentDifficulty, stars);
@@ -2303,11 +2312,12 @@ function flipCard(index) {
       }
     } else {
       Sound.mismatch();
+      Board.mismatch(a, b);
       setTimeout(() => {
         cards[a].flipped = false;
         cards[b].flipped = false;
-        cards[a].el.classList.remove('flipped');
-        cards[b].el.classList.remove('flipped');
+        Board.flipDown(a);
+        Board.flipDown(b);
         flippedCards = [];
         locked = false;
       }, 850);
@@ -2521,10 +2531,7 @@ function startGame() {
   document.getElementById('moveCounter').textContent = 'Züge: 0';
   updateHintBtn();
   document.getElementById('winOverlay').classList.remove('show');
-
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  grid.className = `grid cols-${cols}`;
+  if (!Board) chooseBoard();
 
   let deck;
   if (currentLevel === 1) {
@@ -2548,63 +2555,174 @@ function startGame() {
     deck = shuffle([...deck, { isJoker: true, charIndex: -2, content: null }]);
   }
 
-  deck.forEach((item, i) => {
-    const card = document.createElement('div');
-    card.className = 'card dealing';
-    card.onclick = () => flipCard(i);
-
-    let front;
-    if (item.isJoker) {
-      front = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="54" r="36" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/>
-        <polygon points="50,22 56,40 76,40 60,52 66,70 50,60 34,70 40,52 24,40 44,40" fill="#ffd54f" stroke="#f9a825" stroke-width="1.5"/>
-        <text x="24" y="95" font-size="14" fill="#e65100" font-weight="bold" font-family="Arial,sans-serif">BONUS!</text>
-      </svg>`;
-    } else if (currentLevel === 1) {
-      front = `${item.content.emoji ? `<div class="card-emoji">${item.content.emoji}</div>` : item.content.svg}<div class="card-label">${item.content.name}</div>`;
-    } else {
-      const w = item.content;
-      const fs = w.name.length <= 2 ? 'clamp(1.8rem,5vw,2.6rem)' :
-                 w.name.length <= 3 ? 'clamp(1.4rem,4.5vw,2.2rem)' :
-                 w.name.length <= 4 ? 'clamp(1.1rem,3.5vw,1.8rem)' :
-                                      'clamp(0.9rem,3vw,1.4rem)';
-      front = `<div class="word-text" style="color:${w.color};font-size:${fs}">${w.name}</div>`;
-    }
-
-    const bgStyle = (!item.isJoker && currentLevel !== 1) ? `style="background:${item.content.bg}"` : '';
-    const theme = themes[currentTheme] || themes.princess;
-    const isThemed = currentLevel === 1;
-    const cardBackPattern = isThemed ? theme.cardBack : themes.princess.cardBack;
-    const levelDeck = getLevelDeck(currentLevel);
-    const cardGradient = isThemed ? theme.cardBackGradient : (levelDeck ? levelDeck.gradient : '');
-    const cardBorder = isThemed ? (theme.cardBorder || '') : (levelDeck ? levelDeck.border : '');
-    const cardStyle = (cardGradient || cardBorder) ? `style="${cardGradient ? '--card-bg:' + cardGradient + ';' : ''}${cardBorder ? '--card-border:' + cardBorder + ';' : ''}"` : '';
-    card.innerHTML = `
-      <div class="card-face card-back" ${cardStyle}><div class="card-back-pattern">${cardBackPattern}</div><div class="card-back-shimmer"></div></div>
-      <div class="card-face card-front" ${bgStyle}>${front}</div>
-    `;
-
-    grid.appendChild(card);
+  deck.forEach(item => {
     const sp = cardSpeech(item);
-    cards.push({ el: card, charIndex: item.charIndex, flipped: false, matched: false, isJoker: item.isJoker || false, speakText: sp.text, speakLang: sp.lang });
+    cards.push({ charIndex: item.charIndex, flipped: false, matched: false, isJoker: item.isJoker || false, speakText: sp.text, speakLang: sp.lang });
   });
+  boardSpecs = deck.map(cardFaceSpec);
+  boardCols = cols;
+  Board.build(boardSpecs, boardCols, {
+    back: currentBackSpec(),
+    onTap: flipCard,
+    onDealt: () => { locked = false; }
+  });
+}
 
-  // Deal animation
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      cards.forEach((c, i) => {
-        setTimeout(() => {
-          c.el.classList.remove('dealing');
-          c.el.classList.add('dealt');
-          Sound.deal(i, cards.length);
-        }, i * 50);
-      });
-      setTimeout(() => {
-        locked = false;
-        cards.forEach(c => c.el.classList.remove('dealt'));
-      }, cards.length * 50 + 400);
+// ═══════════════════════════════════════════════════════════════
+// CARD BOARD (renderers)
+// ═══════════════════════════════════════════════════════════════
+// The game rules above only talk to `Board`. Two renderers implement it:
+// Board3D (WebGL, board3d.js) and DomBoard (the flat HTML cards, used when
+// 3D is switched off in the settings or the device has no WebGL).
+let Board = null;
+let boardSpecs = [], boardCols = 3;
+
+// What is printed on the front of a card — shared by both renderers
+function cardFaceSpec(item) {
+  if (item.isJoker) return { kind: 'joker' };
+  if (currentLevel === 1) return { kind: 'emoji', emoji: item.content.emoji, svg: item.content.svg, label: item.content.name };
+  const w = item.content;
+  return { kind: 'text', text: w.name, color: w.color, bg: w.bg };
+}
+
+// The deck's back design: theme colours for Bilder, the chosen colour otherwise
+function currentBackSpec() {
+  const theme = themes[currentTheme] || themes.princess;
+  const isThemed = currentLevel === 1;
+  const levelDeck = getLevelDeck(currentLevel);
+  return {
+    gradient: isThemed ? theme.cardBackGradient : (levelDeck ? levelDeck.gradient : ''),
+    border: isThemed ? (theme.cardBorder || '') : (levelDeck ? levelDeck.border : ''),
+    pattern: isThemed ? theme.cardBack : themes.princess.cardBack
+  };
+}
+
+const jokerSvg = `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="54" r="36" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/>
+  <polygon points="50,22 56,40 76,40 60,52 66,70 50,60 34,70 40,52 24,40 44,40" fill="#ffd54f" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="24" y="95" font-size="14" fill="#e65100" font-weight="bold" font-family="Arial,sans-serif">BONUS!</text>
+</svg>`;
+
+const DomBoard = {
+  els: [],
+  build(specs, cols, opts) {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    grid.className = `grid cols-${cols}`;
+    const back = opts.back || {};
+    const cardStyle = (back.gradient || back.border)
+      ? `style="${back.gradient ? '--card-bg:' + back.gradient + ';' : ''}${back.border ? '--card-border:' + back.border + ';' : ''}"` : '';
+    this.els = specs.map((spec, i) => {
+      let front;
+      if (spec.kind === 'joker') {
+        front = jokerSvg;
+      } else if (spec.kind === 'emoji') {
+        front = `${spec.emoji ? `<div class="card-emoji">${spec.emoji}</div>` : spec.svg}<div class="card-label">${spec.label}</div>`;
+      } else {
+        const fs = spec.text.length <= 2 ? 'clamp(1.8rem,5vw,2.6rem)' :
+                   spec.text.length <= 3 ? 'clamp(1.4rem,4.5vw,2.2rem)' :
+                   spec.text.length <= 4 ? 'clamp(1.1rem,3.5vw,1.8rem)' :
+                                           'clamp(0.9rem,3vw,1.4rem)';
+        front = `<div class="word-text" style="color:${spec.color};font-size:${fs}">${spec.text}</div>`;
+      }
+      const bgStyle = spec.kind === 'text' ? `style="background:${spec.bg}"` : '';
+      const card = document.createElement('div');
+      card.className = opts.states ? 'card' : 'card dealing';
+      card.onclick = () => opts.onTap(i);
+      card.innerHTML = `
+        <div class="card-face card-back" ${cardStyle}><div class="card-back-pattern">${back.pattern || ''}</div><div class="card-back-shimmer"></div></div>
+        <div class="card-face card-front" ${bgStyle}>${front}</div>
+      `;
+      grid.appendChild(card);
+      return card;
     });
-  });
+
+    if (opts.states) {
+      opts.states.forEach((s, i) => {
+        if (s.up || s.matched) this.els[i].classList.add('flipped');
+        if (s.matched) this.els[i].classList.add('matched');
+      });
+      if (opts.onDealt) opts.onDealt();
+      return;
+    }
+    // Deal animation
+    const els = this.els;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        els.forEach((el, i) => {
+          setTimeout(() => {
+            el.classList.remove('dealing');
+            el.classList.add('dealt');
+            Sound.deal(i, els.length);
+          }, i * 50);
+        });
+        setTimeout(() => {
+          els.forEach(el => el.classList.remove('dealt'));
+          if (opts.onDealt) opts.onDealt();
+        }, els.length * 50 + 400);
+      });
+    });
+  },
+  flipUp(i) { if (this.els[i]) this.els[i].classList.add('flipped'); },
+  flipDown(i) { if (this.els[i]) this.els[i].classList.remove('flipped'); },
+  match(i) {
+    const el = this.els[i];
+    if (!el) return;
+    el.classList.add('matched');
+    createSparkles(el);
+  },
+  mismatch() {},
+  celebrate() {},
+  refreshBacks(back) {
+    this.els.forEach(el => {
+      const b = el.querySelector('.card-back');
+      if (!b) return;
+      b.style.setProperty('--card-bg', back.gradient);
+      b.style.setProperty('--card-border', back.border);
+    });
+  },
+  clear() {
+    document.getElementById('grid').innerHTML = '';
+    this.els = [];
+  }
+};
+
+function want3DView() {
+  return Storage.getSettings().view3d !== false;
+}
+
+function chooseBoard() {
+  const use3d = want3DView() && typeof Board3D !== 'undefined' &&
+    Board3D.init(document.getElementById('board3d'));
+  const next = use3d ? Board3D : DomBoard;
+  if (Board && Board !== next) Board.clear();
+  Board = next;
+  document.body.classList.toggle('mode-3d', !!use3d);
+}
+
+// Switching views mid-game keeps every card exactly as it was
+function toggleView3d() {
+  const s = Storage.getSettings();
+  s.view3d = document.getElementById('view3dToggle').checked;
+  Storage.saveSettings(s);
+  Sound.click();
+  chooseBoard();
+  const inGame = document.getElementById('gameScreen').classList.contains('visible');
+  if (inGame && boardSpecs.length && currentLevel !== 5) {
+    Board.build(boardSpecs, boardCols, {
+      back: currentBackSpec(),
+      onTap: flipCard,
+      states: cards.map(c => ({ up: c.flipped, matched: c.matched })),
+      onDealt: () => { if (flippedCards.length < 2) locked = false; }
+    });
+  }
+}
+
+function renderView3dControl() {
+  const row = document.getElementById('view3dRow');
+  const ok = typeof Board3D !== 'undefined' && Board3D.isSupported();
+  row.style.display = ok ? '' : 'none';
+  document.getElementById('view3dToggle').checked = want3DView();
 }
 
 // ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
